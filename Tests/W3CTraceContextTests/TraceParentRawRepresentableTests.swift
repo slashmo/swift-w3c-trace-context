@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift W3C Trace Context open source project
 //
-// Copyright (c) YEARS Moritz Lang and the Swift W3C Trace Context project authors
+// Copyright (c) 2020 Moritz Lang and the Swift W3C Trace Context project authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -57,13 +57,23 @@ final class TraceParentRawRepresentableTests: XCTestCase {
         XCTAssertEqual(traceParent.rawValue, "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01")
     }
 
+    func testDecodeFailsWithTooLongRawValue() {
+        let rawValue = String(repeating: "42", count: 1000)
+        XCTAssertUninitializedTraceParent(rawValue)
+    }
+
+    func testDecodeFailsWithTooShortRawValue() {
+        let rawValue = "too-short"
+        XCTAssertUninitializedTraceParent(rawValue)
+    }
+
     func testDecodeFailsWithTooManyComponents() {
-        let rawValue = "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01-additional-components"
+        let rawValue = "00-0af7651916cd43dd8448eb211c803-b7ad6b7169203331-01-12"
         XCTAssertUninitializedTraceParent(rawValue)
     }
 
     func testDecodeFailsWithTooFewComponents() {
-        let rawValue = "00-0af7651916cd43dd8448eb211c80319c"
+        let rawValue = "00-0af7651916cd43dd8448eb211c803-b7ad6b7169203331000000"
         XCTAssertUninitializedTraceParent(rawValue)
     }
 
@@ -78,7 +88,7 @@ final class TraceParentRawRepresentableTests: XCTestCase {
     }
 
     func testDecodeFailsWithTooShortTraceID() {
-        let rawValue = "00-tooshort-b7ad6b7169203331-01"
+        let rawValue = "00-tooshort-b7ad6b7169203331-01432436432435434234234234"
         XCTAssertUninitializedTraceParent(rawValue)
     }
 
@@ -88,7 +98,7 @@ final class TraceParentRawRepresentableTests: XCTestCase {
     }
 
     func testDecodeFailsWithTooShortParentID() {
-        let rawValue = "00-0af7651916cd43dd8448eb211c80319c-tooshort-01"
+        let rawValue = "00-0af7651916cd43dd8448eb211c80319c-tooshort-0131434343"
         XCTAssertUninitializedTraceParent(rawValue)
     }
 
@@ -98,12 +108,12 @@ final class TraceParentRawRepresentableTests: XCTestCase {
     }
 
     func testDecodeFailsWithTooLongTraceFlags() {
-        let rawValue = "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-toolong"
+        let rawValue = "00-0af7651916cd43dd8448eb211c80319c-b7ad6b71692-toolong"
         XCTAssertUninitializedTraceParent(rawValue)
     }
 
     func testDecodeFailsWithTooShortTraceFlags() {
-        let rawValue = "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-0"
+        let rawValue = "00-0af7651916cd43dd8448eb211c80319c-b7ad6b71692033311-0"
         XCTAssertUninitializedTraceParent(rawValue)
     }
 
