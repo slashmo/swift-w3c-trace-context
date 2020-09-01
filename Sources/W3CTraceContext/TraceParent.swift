@@ -17,11 +17,19 @@ extension W3C {
         public let parentID: String
         public let traceFlags: String
 
+        public init(traceID: String, parentID: String, traceFlags: String) {
+            self.traceID = traceID
+            self.parentID = parentID
+            self.traceFlags = traceFlags
+        }
+
         public var sampled: Bool {
             self.traceFlags == "01"
         }
 
-        static let version = "00"
+        public static let headerName = "traceparent"
+
+        private static let version = "00"
     }
 
     // TODO: Trace State
@@ -31,6 +39,7 @@ extension W3C.TraceParent: Equatable {
     public static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.traceID == rhs.traceID
             && lhs.parentID == rhs.parentID
+            && lhs.traceFlags == rhs.traceFlags
     }
 }
 

@@ -11,11 +11,23 @@
 //
 //===----------------------------------------------------------------------===//
 
-@testable import W3CTraceContext
+import W3CTraceContext
 import XCTest
 
 final class TraceParentRawRepresentableTests: XCTestCase {
-    // MARK: - Trace Parent -
+    // MARK: - Encoding
+
+    func testEncodesToValidRawValue() {
+        let traceParent = W3C.TraceParent(
+            traceID: "0af7651916cd43dd8448eb211c80319c",
+            parentID: "b7ad6b7169203331",
+            traceFlags: "01"
+        )
+
+        XCTAssertEqual(traceParent.rawValue, "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01")
+    }
+
+    // MARK: - Decoding
 
     func testDecodeValidTraceParentStringWithSampledFlag() {
         let rawValue = "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
@@ -45,16 +57,6 @@ final class TraceParentRawRepresentableTests: XCTestCase {
         )
 
         XCTAssertFalse(traceParent.sampled)
-    }
-
-    func testEncodesToValidRawValue() {
-        let traceParent = W3C.TraceParent(
-            traceID: "0af7651916cd43dd8448eb211c80319c",
-            parentID: "b7ad6b7169203331",
-            traceFlags: "01"
-        )
-
-        XCTAssertEqual(traceParent.rawValue, "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01")
     }
 
     func testDecodeFailsWithTooLongRawValue() {
@@ -117,7 +119,37 @@ final class TraceParentRawRepresentableTests: XCTestCase {
         XCTAssertUninitializedTraceParent(rawValue)
     }
 
-    // TODO: Trace State
+    // MARK: - Equatable
+
+    func testNonEqualTraceID() {
+        let parent1 = W3C.TraceParent(rawValue: "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01")
+        let parent2 = W3C.TraceParent(rawValue: "00-12345678912345678912345678912345-b7ad6b7169203331-01")
+
+        XCTAssertNotNil(parent1)
+        XCTAssertNotNil(parent2)
+
+        XCTAssertNotEqual(parent1, parent2)
+    }
+
+    func testNonEqualParentID() {
+        let parent1 = W3C.TraceParent(rawValue: "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01")
+        let parent2 = W3C.TraceParent(rawValue: "00-0af7651916cd43dd8448eb211c80319c-1234567891234567-01")
+
+        XCTAssertNotNil(parent1)
+        XCTAssertNotNil(parent2)
+
+        XCTAssertNotEqual(parent1, parent2)
+    }
+
+    func testNonEqualTraceFlags() {
+        let parent1 = W3C.TraceParent(rawValue: "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-00")
+        let parent2 = W3C.TraceParent(rawValue: "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01")
+
+        XCTAssertNotNil(parent1)
+        XCTAssertNotNil(parent2)
+
+        XCTAssertNotEqual(parent1, parent2)
+    }
 }
 
 private func XCTAssertUninitializedTraceParent(_ rawValue: String, file: StaticString = #file, line: UInt = #line) {
