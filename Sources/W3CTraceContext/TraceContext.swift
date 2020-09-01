@@ -10,4 +10,20 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
+
 public enum W3C {}
+
+extension W3C {
+    public struct TraceContext: Equatable {
+        public let parent: TraceParent
+
+        public init(parent: TraceParent) {
+            self.parent = parent
+        }
+
+        public init?(parent parentRawValue: String) {
+            guard let parent = TraceParent(rawValue: parentRawValue) else { return nil }
+            self.parent = parent
+        }
+    }
+}
