@@ -11,31 +11,51 @@
 //
 //===----------------------------------------------------------------------===//
 
-extension W3C {
-    public struct TraceParent {
-        public let traceID: String
-        public let parentID: String
-        public let traceFlags: String
+/// Represents the incoming request in a tracing system in a common format, understood by all vendors.
+///
+/// Example raw value: `00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01`
+///
+/// - SeeAlso: [W3C TraceContext: TraceParent](https://www.w3.org/TR/2020/REC-trace-context-1-20200206/#traceparent-header)
+public struct TraceParent {
+    /// The ID of the whole trace forest, used to uniquely identify a distributed trace through a system.
+    ///
+    /// - SeeAlso: [W3C TraceContext: trace-id](https://www.w3.org/TR/2020/REC-trace-context-1-20200206/#trace-id)
+    public let traceID: String
 
-        public init(traceID: String, parentID: String, traceFlags: String) {
-            self.traceID = traceID
-            self.parentID = parentID
-            self.traceFlags = traceFlags
-        }
+    /// The ID of the incoming request as known by the caller (in some tracing systems, this is known as the span-id, where a span is the execution of
+    /// a client request).
+    ///
+    /// - SeeAlso: [W3C TraceContext: parent-id](https://www.w3.org/TR/2020/REC-trace-context-1-20200206/#parent-id)
+    public let parentID: String
 
-        public var sampled: Bool {
-            self.traceFlags == "01"
-        }
+    /// An 8-bit field that controls tracing flags such as sampling, trace level, etc.
+    ///
+    /// - SeeAlso: [W3C TraceContext: trace-flags](https://www.w3.org/TR/2020/REC-trace-context-1-20200206/#trace-flags)
+    public let traceFlags: String
 
-        public static let headerName = "traceparent"
-
-        private static let version = "00"
+    init(traceID: String, parentID: String, traceFlags: String) {
+        self.traceID = traceID
+        self.parentID = parentID
+        self.traceFlags = traceFlags
     }
 
-    // TODO: Trace State
+    /// When `true`, the least significant bit (right-most), denotes that the caller may have recorded trace data.
+    /// When `false`, the caller did not record trace data out-of-band.
+    ///
+    /// - SeeAlso: [W3C TraceContext: Sampled flag](https://www.w3.org/TR/2020/REC-trace-context-1-20200206/#sampled-flag)
+    public var sampled: Bool {
+        self.traceFlags == "01"
+    }
+
+    /// The HTTP header name for `TraceParent`.
+    public static let headerName = "traceparent"
+
+    /// Hard-coded version to "00" as it's the only version currently supported by this package.
+    private static let version = "00"
 }
 
-extension W3C.TraceParent: Equatable {
+extension TraceParent: Equatable {
+    // custom implementation to avoid automatic equality check of rawValue which is unnecessary computational overhead
     public static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.traceID == rhs.traceID
             && lhs.parentID == rhs.parentID
@@ -43,7 +63,10 @@ extension W3C.TraceParent: Equatable {
     }
 }
 
-extension W3C.TraceParent: RawRepresentable {
+extension TraceParent: RawRepresentable {
+    /// Initialize a `TraceParent` from an HTTP header value. Fails if the value cannot be parsed.
+    ///
+    /// - Parameter rawValue: The value of the traceparent HTTP header.
     public init?(rawValue: String) {
         guard rawValue.count == 55 else { return nil }
 
@@ -72,7 +95,14 @@ extension W3C.TraceParent: RawRepresentable {
         self.traceFlags = String(traceFlagsComponent)
     }
 
+    /// A `String` representation of this trace parent, suitable for injecting into HTTP headers.
     public var rawValue: String {
         "\(Self.version)-\(self.traceID)-\(self.parentID)-\(self.traceFlags)"
+    }
+}
+
+extension TraceParent: CustomStringConvertible {
+    public var description: String {
+        self.rawValue
     }
 }
