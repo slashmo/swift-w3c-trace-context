@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>W3C Trace Context - TraceContext</title>
+    <link rel="stylesheet" type="text/css" href="./all.css" media="all" />
+</head>
+<body>
+    <header>
+        <a href="./">
+            <strong>
+                W3C Trace Context
+            </strong>
+            <span>Documentation</span>
+        </a>
+        <sup>Beta</sup>
+    </header>
+
+    <!--
+    <form class="search">
+        <input type="search" placeholder="Search" />
+    </form>
+    -->
+
+    <nav>
+        <div class="wrapper">
+            <h2>On This Page</h2>
+            <ol><li><a href="#relationships">Relationships</a><ul><li><a href="#relationships">Conforms To</a></li></ul></li><li><a href="#initializers">Initializers</a><ul><li class="initializer"><a href="#tracecontext.init?(parent:state:)">init?(parent:​state:​)</a></li></ul></li><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#tracecontext.parent">parent</a></li><li class="variable"><a href="#tracecontext.state">state</a></li></ul></li></ol>
+        </div>
+    </nav>
+
+    <main>
+        <article>
+            <h1>
+    <small>Structure</small>
+    <code class="name">Trace​Context</code>
+</h1>
+
+<html><body><pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">struct</span> <span class="type">TraceContext</span>: <span class="type">Equatable</span></code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>An implementation of <a href="https://www.w3.org/TR/2020/REC-trace-context-1-20200206/">W3C TraceContext</a>,
+combining <code>TraceParent</code> and <code>TraceState</code>.</p>
+
+</div>
+<section id="relationships">
+    <h2 hidden>Relationships</h2>
+        
+        <h3>Conforms To</h3>
+<dl>
+    <dt class="unknown"><code>Equatable</code></dt>
+</dl>
+</section>
+    <section id="initializers">
+        <h2>Initializers</h2>
+
+        <div role="article" class="initializer" id="tracecontext.init?(parent:state:)">
+    <h3>
+        <code>init?(parent:​state:​)</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">init</span>?(<span class="variable">parent</span> <span class="variable">parentRawValue</span>: <span class="type">String</span>, <span class="variable">state</span> <span class="variable">stateRawValue</span>: <span class="type">String</span>)</code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>Create a <code>TraceContext</code> by parsing the given header values.</p>
+
+</div>
+<div class="discussion">
+    <p>When receiving multiple header fields for <code>tracestate</code>, the <code>state</code> argument should be a joined, comma-separated, <code>String</code>
+of all values according to <a href="https://httpwg.org/specs/rfc7230.html#rfc.section.3.2.2">HTTP RFC 7230: Field Order</a>.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>parent​Raw​Value</th>
+    <td><code class="type">String</code></td>
+    <td><p>HTTP header value for the <code>traceparent</code> key.</p>
+</td>
+</tr>
+<tr>
+    <th>state​Raw​Value</th>
+    <td><code class="type">String</code></td>
+    <td><p>HTTP header value for the <code>tracestate</code> key.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+</div>
+    </section>
+    <section id="properties">
+        <h2>Properties</h2>
+
+        <div role="article" class="variable" id="tracecontext.parent">
+    <h3>
+        <code>parent</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">let</span> <span class="variable">parent</span>: <a href="./TraceParent"><span class="type">TraceParent</span></a></code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>The <code>TraceParent</code> identifying this trace context.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="tracecontext.state">
+    <h3>
+        <code>state</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">let</span> <span class="variable">state</span>: <a href="./TraceState"><span class="type">TraceState</span></a></code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>The <code>TraceState</code> containing potentially vendor-specific trace information.</p>
+
+</div>
+</div>
+    </section>
+
+
+
+        </article>
+    </main>
+
+    <footer>
+        <p>
+    Generated on <time datetime="2020-09-10T10:33:49+0000">September 10, 2020</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.4</span>.
+</p>
+    </footer>
+</body>
+</html>

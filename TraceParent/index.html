@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>W3C Trace Context - TraceParent</title>
+    <link rel="stylesheet" type="text/css" href="./all.css" media="all" />
+</head>
+<body>
+    <header>
+        <a href="./">
+            <strong>
+                W3C Trace Context
+            </strong>
+            <span>Documentation</span>
+        </a>
+        <sup>Beta</sup>
+    </header>
+
+    <!--
+    <form class="search">
+        <input type="search" placeholder="Search" />
+    </form>
+    -->
+
+    <nav>
+        <div class="wrapper">
+            <h2>On This Page</h2>
+            <ol><li><a href="#relationships">Relationships</a><ul><li><a href="#relationships">Conforms To</a></li></ul></li><li><a href="#initializers">Initializers</a><ul><li class="initializer"><a href="#traceparent.init?(rawvalue:)">init?(raw​Value:​)</a></li></ul></li><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#traceparent.traceid">trace​ID</a></li><li class="variable"><a href="#traceparent.parentid">parent​ID</a></li><li class="variable"><a href="#traceparent.traceflags">trace​Flags</a></li><li class="variable"><a href="#traceparent.sampled">sampled</a></li><li class="variable"><a href="#traceparent.headername">header​Name</a></li><li class="variable"><a href="#traceparent.rawvalue">raw​Value</a></li><li class="variable"><a href="#traceparent.description">description</a></li></ul></li><li><a href="#methods">Methods</a><ul><li class="function"><a href="#traceparent.==(lhs:rhs:)">==(lhs:​rhs:​)</a></li></ul></li></ol>
+        </div>
+    </nav>
+
+    <main>
+        <article>
+            <h1>
+    <small>Structure</small>
+    <code class="name">Trace​Parent</code>
+</h1>
+
+<html><body><pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">struct</span> <span class="type">TraceParent</span></code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>Represents the incoming request in a tracing system in a common format, understood by all vendors.</p>
+
+</div>
+<div class="discussion">
+    <p>Example raw value: <code>00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01</code></p>
+
+<aside class="seealso">
+    <p><a href="https://www.w3.org/TR/2020/REC-trace-context-1-20200206/#traceparent-header">W3C TraceContext: TraceParent</a></p>
+
+</aside>
+</div>
+<section id="relationships">
+    <h2 hidden>Relationships</h2>
+        
+        <h3>Conforms To</h3>
+<dl>
+    <dt class="unknown"><code>CustomStringConvertible</code></dt>
+<dt class="unknown"><code>Equatable</code></dt>
+<dt class="unknown"><code>RawRepresentable</code></dt>
+</dl>
+</section>
+    <section id="initializers">
+        <h2>Initializers</h2>
+
+        <div role="article" class="initializer" id="traceparent.init?(rawvalue:)">
+    <h3>
+        <code>init?(raw​Value:​)</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">init</span>?(<span class="variable">rawValue</span>: <span class="type">String</span>)</code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>Initialize a <code>TraceParent</code> from an HTTP header value. Fails if the value cannot be parsed.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>raw​Value</th>
+    <td><code class="type">String</code></td>
+    <td><p>The value of the traceparent HTTP header.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+</div>
+    </section>
+    <section id="properties">
+        <h2>Properties</h2>
+
+        <div role="article" class="variable" id="traceparent.traceid">
+    <h3>
+        <code>trace​ID</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">let</span> <span class="variable">traceID</span>: <span class="type">String</span></code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>The ID of the whole trace forest, used to uniquely identify a distributed trace through a system.</p>
+
+</div>
+<div class="discussion">
+    <aside class="seealso">
+    <p><a href="https://www.w3.org/TR/2020/REC-trace-context-1-20200206/#trace-id">W3C TraceContext: trace-id</a></p>
+
+</aside>
+</div>
+</div>
+<div role="article" class="variable" id="traceparent.parentid">
+    <h3>
+        <code>parent​ID</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">let</span> <span class="variable">parentID</span>: <span class="type">String</span></code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>The ID of the incoming request as known by the caller (in some tracing systems, this is known as the span-id, where a span is the execution of
+a client request).</p>
+
+</div>
+<div class="discussion">
+    <aside class="seealso">
+    <p><a href="https://www.w3.org/TR/2020/REC-trace-context-1-20200206/#parent-id">W3C TraceContext: parent-id</a></p>
+
+</aside>
+</div>
+</div>
+<div role="article" class="variable" id="traceparent.traceflags">
+    <h3>
+        <code>trace​Flags</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">let</span> <span class="variable">traceFlags</span>: <span class="type">String</span></code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>An 8-bit field that controls tracing flags such as sampling, trace level, etc.</p>
+
+</div>
+<div class="discussion">
+    <aside class="seealso">
+    <p><a href="https://www.w3.org/TR/2020/REC-trace-context-1-20200206/#trace-flags">W3C TraceContext: trace-flags</a></p>
+
+</aside>
+</div>
+</div>
+<div role="article" class="variable" id="traceparent.sampled">
+    <h3>
+        <code>sampled</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">var</span> <span class="variable">sampled</span>: <span class="type">Bool</span></code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>When <code>true</code>, the least significant bit (right-most), denotes that the caller may have recorded trace data.
+When <code>false</code>, the caller did not record trace data out-of-band.</p>
+
+</div>
+<div class="discussion">
+    <aside class="seealso">
+    <p><a href="https://www.w3.org/TR/2020/REC-trace-context-1-20200206/#sampled-flag">W3C TraceContext: Sampled flag</a></p>
+
+</aside>
+</div>
+</div>
+<div role="article" class="variable" id="traceparent.headername">
+    <h3>
+        <code>header​Name</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">let</span> <span class="variable">headerName</span> = <span class="string literal">"</span><span class="string literal">traceparent</span><span class="string literal">"</span></code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>The HTTP header name for <code>TraceParent</code>.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="traceparent.rawvalue">
+    <h3>
+        <code>raw​Value</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">var</span> <span class="variable">rawValue</span>: <span class="type">String</span></code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>A <code>String</code> representation of this trace parent, suitable for injecting into HTTP headers.</p>
+
+</div>
+</div>
+<div role="article" class="variable" id="traceparent.description">
+    <h3>
+        <code>description</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">var</span> <span class="variable">description</span>: <span class="type">String</span></code></pre></body></html>
+</div>
+    </section>
+    <section id="methods">
+        <h2>Methods</h2>
+
+        <div role="article" class="function" id="traceparent.==(lhs:rhs:)">
+    <h3>
+        <code>==(lhs:​rhs:​)</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">func</span> ==(<span class="variable">lhs</span>: <span class="keyword">Self</span>, <span class="variable">rhs</span>: <span class="keyword">Self</span>) -&gt; <span class="type">Bool</span></code></pre></body></html>
+</div>
+    </section>
+
+
+
+        </article>
+    </main>
+
+    <footer>
+        <p>
+    Generated on <time datetime="2020-09-10T10:33:49+0000">September 10, 2020</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.4</span>.
+</p>
+    </footer>
+</body>
+</html>
