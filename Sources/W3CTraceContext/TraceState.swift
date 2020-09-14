@@ -65,7 +65,6 @@ extension TraceState: RawRepresentable {
                 } else if horizontalSpaces.contains(rest[rest.index(before: rest.endIndex)]) {
                     rest.removeLast()
                 } else {
-                    print(rest)
                     break
                 }
             }
