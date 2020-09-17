@@ -15,7 +15,7 @@
 /// combining `TraceParent` and `TraceState`.
 public struct TraceContext: Equatable {
     /// The `TraceParent` identifying this trace context.
-    public let parent: TraceParent
+    public private(set) var parent: TraceParent
 
     /// The `TraceState` containing potentially vendor-specific trace information.
     public let state: TraceState
@@ -42,5 +42,39 @@ public struct TraceContext: Equatable {
         guard let parent = TraceParent(rawValue: parentRawValue) else { return nil }
         self.parent = parent
         self.state = TraceState(rawValue: stateRawValue) ?? TraceState([])
+    }
+}
+
+extension TraceContext {
+    /// Replace the parent-id of the current `traceParent` with a newly generated one, using the system random number generator.
+    public mutating func regenerateParentID() {
+        var generator = SystemRandomNumberGenerator()
+        self.regenerateParentID(using: &generator)
+    }
+
+    /// Replace the parent-id of the current `traceParent` with a newly generated one, using the given generator as a source for
+    /// randomness.
+    ///
+    /// - Parameter generator: The random number generator used as a source for generating the new parent-id.
+    public mutating func regenerateParentID<G: RandomNumberGenerator>(using generator: inout G) {
+        self.parent.parentID = TraceParent.randomParentID(using: &generator)
+    }
+
+    /// Return a copy with its `traceParent.parentID` replaced with a newly generated one, using the system random number generator.
+    ///
+    /// - Returns: A copy of this `TraceContext` with a new trace-parent parent-id.
+    public func regeneratingParentID() -> TraceContext {
+        var generator = SystemRandomNumberGenerator()
+        return self.regeneratingParentID(using: &generator)
+    }
+
+    /// Return a copy with its `traceParent.parentID` replaced with a newly generated one, using the system random number generator.
+    ///
+    /// - Parameter generator: The random number generator used as a source for generating the new parent-id.
+    /// - Returns: A copy of this `TraceContext` with a new trace-parent parent-id.
+    public func regeneratingParentID<G: RandomNumberGenerator>(using generator: inout G) -> TraceContext {
+        var copy = self
+        copy.regenerateParentID(using: &generator)
+        return copy
     }
 }

@@ -61,4 +61,20 @@ final class TraceContextTests: XCTestCase {
             )
         )
     }
+
+    func test_regenerate_trace_parent_parent_id_in_place() {
+        var traceContext = TraceContext(parent: .random(), state: .none)
+        let previousTraceParentID = traceContext.parent.parentID
+
+        traceContext.regenerateParentID()
+
+        XCTAssertNotEqual(traceContext.parent.parentID, previousTraceParentID)
+    }
+
+    func test_regenerate_trace_parent_parent_id() {
+        let traceContext = TraceContext(parent: .random(), state: .none)
+        let newTraceContext = traceContext.regeneratingParentID()
+
+        XCTAssertNotEqual(newTraceContext.parent.parentID, traceContext.parent.parentID)
+    }
 }
