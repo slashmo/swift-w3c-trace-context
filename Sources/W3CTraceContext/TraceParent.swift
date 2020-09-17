@@ -26,7 +26,7 @@ public struct TraceParent {
     /// a client request).
     ///
     /// - SeeAlso: [W3C TraceContext: parent-id](https://www.w3.org/TR/2020/REC-trace-context-1-20200206/#parent-id)
-    public let parentID: String
+    public internal(set) var parentID: String
 
     /// An 8-bit field that controls tracing flags such as sampling, trace level, etc.
     ///
