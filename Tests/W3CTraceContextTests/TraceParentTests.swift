@@ -157,7 +157,7 @@ final class TraceParentRawRepresentableTests: XCTestCase {
         let traceParent = TraceParent.random()
 
         // validate random trace-parent by parsing its raw value
-        XCTAssertNotNil(TraceParent(rawValue: traceParent.rawValue))
+        XCTAssertEqual(TraceParent(rawValue: traceParent.rawValue), traceParent)
     }
 }
 
