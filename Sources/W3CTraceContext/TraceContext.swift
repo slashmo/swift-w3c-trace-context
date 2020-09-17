@@ -20,7 +20,12 @@ public struct TraceContext: Equatable {
     /// The `TraceState` containing potentially vendor-specific trace information.
     public let state: TraceState
 
-    init(parent: TraceParent, state: TraceState) {
+    /// Create a `TraceContext` from the given parent and state.
+    ///
+    /// - Parameters:
+    ///   - parent: The `TraceParent` stored in this context.
+    ///   - state: The `TraceState` stored in this context.
+    public init(parent: TraceParent, state: TraceState) {
         self.parent = parent
         self.state = state
     }
