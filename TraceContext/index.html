@@ -26,7 +26,7 @@
     <nav>
         <div class="wrapper">
             <h2>On This Page</h2>
-            <ol><li><a href="#relationships">Relationships</a><ul><li><a href="#relationships">Conforms To</a></li></ul></li><li><a href="#initializers">Initializers</a><ul><li class="initializer"><a href="#tracecontext.init?(parent:state:)">init?(parent:​state:​)</a></li></ul></li><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#tracecontext.parent">parent</a></li><li class="variable"><a href="#tracecontext.state">state</a></li></ul></li></ol>
+            <ol><li><a href="#relationships">Relationships</a><ul><li><a href="#relationships">Conforms To</a></li></ul></li><li><a href="#initializers">Initializers</a><ul><li class="initializer"><a href="#tracecontext.init(parent:state:)">init(parent:​state:​)</a></li><li class="initializer"><a href="#tracecontext.init?(parent:state:)">init?(parent:​state:​)</a></li></ul></li><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#tracecontext.parent">parent</a></li><li class="variable"><a href="#tracecontext.state">state</a></li></ul></li></ol>
         </div>
     </nav>
 
@@ -54,7 +54,42 @@ combining <code>TraceParent</code> and <code>TraceState</code>.</p>
     <section id="initializers">
         <h2>Initializers</h2>
 
-        <div role="article" class="initializer" id="tracecontext.init?(parent:state:)">
+        <div role="article" class="initializer" id="tracecontext.init(parent:state:)">
+    <h3>
+        <code>init(parent:​state:​)</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">init</span>(<span class="variable">parent</span>: <a href="/swift-w3c-trace-context/TraceParent"><span class="type">TraceParent</span></a>, <span class="variable">state</span>: <a href="/swift-w3c-trace-context/TraceState"><span class="type">TraceState</span></a>)</code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>Create a <code>TraceContext</code> from the given parent and state.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>parent</th>
+    <td><code class="type">Trace​Parent</code></td>
+    <td><p>The <code>TraceParent</code> stored in this context.</p>
+</td>
+</tr>
+<tr>
+    <th>state</th>
+    <td><code class="type">Trace​State</code></td>
+    <td><p>The <code>TraceState</code> stored in this context.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+</div>
+<div role="article" class="initializer" id="tracecontext.init?(parent:state:)">
     <h3>
         <code>init?(parent:​state:​)</code>
     </h3>
@@ -127,7 +162,7 @@ of all values according to <a href="https://httpwg.org/specs/rfc7230.html#rfc.se
 
     <footer>
         <p>
-    Generated on <time datetime="2020-09-17T09:26:09+0000">September 17, 2020</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.4</span>.
+    Generated on <time datetime="2020-09-17T10:33:32+0000">September 17, 2020</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.4</span>.
 </p>
     </footer>
 </body>
