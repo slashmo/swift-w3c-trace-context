@@ -11,7 +11,7 @@ the [W3C Trace Context standard (Level 1)](https://www.w3.org/TR/2020/REC-trace-
 Add the following package dependency to your `Package.swift` file:
 
 ```swift
-.package(url: "https://github.com/slashmo/swift-w3c-trace-context", from: "0.2.0")
+.package(url: "https://github.com/slashmo/swift-w3c-trace-context", from: "0.3.0")
 ```
 
 Then, add the `W3CTraceContext` library as a product dependency to each target you want to use it in:
