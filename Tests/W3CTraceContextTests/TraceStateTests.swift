@@ -15,16 +15,29 @@
 import XCTest
 
 final class TraceStateTests: XCTestCase {
+    // MARK: - Creation
+
+    func test_create_empty_trace_state() {
+        XCTAssertEqual(TraceState.none.rawValue, "")
+    }
+
     // MARK: - Equality
 
-    func testNotEqualIfStorageCountDiffers() {
+    func test_equal_sameStorage() {
+        let lhs = TraceState([("rojo", "00f067aa0ba902b7"), ("congo", "t61rcWkgMzE")])
+        let rhs = TraceState([("rojo", "00f067aa0ba902b7"), ("congo", "t61rcWkgMzE")])
+
+        XCTAssertEqual(lhs, rhs)
+    }
+
+    func test_not_equal_storageCountDiffers() {
         let lhs = TraceState([("rojo", "00f067aa0ba902b7")])
         let rhs = TraceState([("rojo", "00f067aa0ba902b7"), ("congo", "t61rcWkgMzE")])
 
         XCTAssertNotEqual(lhs, rhs)
     }
 
-    func testNotEqualIfStorageOrderDiffers() {
+    func test_not_equal_storageOrderDiffers() {
         let lhs = TraceState([("congo", "t61rcWkgMzE"), ("rojo", "00f067aa0ba902b7")])
         let rhs = TraceState([("rojo", "00f067aa0ba902b7"), ("congo", "t61rcWkgMzE")])
 
@@ -53,31 +66,31 @@ final class TraceStateTests: XCTestCase {
 
     // MARK: - Decoding
 
-    func testInitValidRawValue() {
+    func testInitRawValueValidRawValue() {
         let traceState = TraceState(rawValue: "rojo=00f067aa0ba902b7,congo=t61rcWkgMzE")
 
         XCTAssertEqual(traceState, TraceState([("rojo", "00f067aa0ba902b7"), ("congo", "t61rcWkgMzE")]))
     }
 
-    func testInitWithMultitenantRawValue() {
+    func testInitRawValueWithMultitenantRawValue() {
         let traceState = TraceState(rawValue: "fw529a3039@dt=00f067aa0ba902b7")
 
         XCTAssertEqual(traceState, TraceState([("fw529a3039@dt", "00f067aa0ba902b7")]))
     }
 
-    func testInitWithInvalidCharacterInKey() {
+    func testInitRawValueWithInvalidCharacterInKey() {
         XCTAssertNil(TraceState(rawValue: "ROJO=00f067aa0ba902b7"))
     }
 
-    func testInitEmptyRawValue() {
+    func testInitRawValueEmptyRawValue() {
         XCTAssertEqual(TraceState(rawValue: ""), TraceState([]))
     }
 
-    func testInitWithTooLongKey() {
+    func testInitRawValueWithTooLongKey() {
         XCTAssertNil(TraceState(rawValue: String(repeating: "1", count: 257) + "=t61rcWkgMzE"))
     }
 
-    func testInitWithKeyEndingWithAtSign() {
+    func testInitRawValueWithKeyEndingWithAtSign() {
         XCTAssertNil(TraceState(rawValue: "rojo@=00f067aa0ba902b7"))
     }
 
@@ -103,7 +116,7 @@ final class TraceStateTests: XCTestCase {
         ]))
     }
 
-    func testInitWhitespaceOnly() {
+    func testInitRawValueWhitespaceOnly() {
         XCTAssertEqual(TraceState(rawValue: "\t\t\t   "), TraceState([]))
     }
 }

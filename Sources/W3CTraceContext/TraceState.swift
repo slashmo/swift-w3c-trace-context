@@ -20,7 +20,7 @@
 public struct TraceState {
     typealias Storage = [(vendor: String, value: String)]
 
-    private var _storage = Storage()
+    private var _storage: Storage
 
     init(_ storage: Storage) {
         self._storage = storage
@@ -28,6 +28,13 @@ public struct TraceState {
 
     /// The HTTP header name for `TraceState`.
     public static let headerName = "tracestate"
+}
+
+extension TraceState {
+    /// Creates an empty `TraceState`.
+    public static var none: TraceState {
+        .init([])
+    }
 }
 
 extension TraceState: Equatable {
@@ -69,7 +76,10 @@ extension TraceState: RawRepresentable {
                 }
             }
 
-            guard !rest.isEmpty else { return }
+            guard !rest.isEmpty else {
+                self._storage = Storage()
+                return
+            }
 
             var vendor = ""
 
