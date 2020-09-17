@@ -26,7 +26,7 @@
     <nav>
         <div class="wrapper">
             <h2>On This Page</h2>
-            <ol><li><a href="#relationships">Relationships</a><ul><li><a href="#relationships">Conforms To</a></li></ul></li><li><a href="#initializers">Initializers</a><ul><li class="initializer"><a href="#tracecontext.init(parent:state:)">init(parent:​state:​)</a></li><li class="initializer"><a href="#tracecontext.init?(parent:state:)">init?(parent:​state:​)</a></li></ul></li><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#tracecontext.parent">parent</a></li><li class="variable"><a href="#tracecontext.state">state</a></li></ul></li></ol>
+            <ol><li><a href="#relationships">Relationships</a><ul><li><a href="#relationships">Conforms To</a></li></ul></li><li><a href="#initializers">Initializers</a><ul><li class="initializer"><a href="#tracecontext.init(parent:state:)">init(parent:​state:​)</a></li><li class="initializer"><a href="#tracecontext.init?(parent:state:)">init?(parent:​state:​)</a></li></ul></li><li><a href="#properties">Properties</a><ul><li class="variable"><a href="#tracecontext.parent">parent</a></li><li class="variable"><a href="#tracecontext.state">state</a></li></ul></li><li><a href="#methods">Methods</a><ul><li class="function"><a href="#tracecontext.regenerateparentid()">regenerate​Parent​ID()</a></li><li class="function"><a href="#tracecontext.regenerateparentid(using:)">regenerate​Parent​ID(using:​)</a></li><li class="function"><a href="#tracecontext.regeneratingparentid()">regenerating​Parent​ID()</a></li><li class="function"><a href="#tracecontext.regeneratingparentid(using:)">regenerating​Parent​ID(using:​)</a></li></ul></li></ol>
         </div>
     </nav>
 
@@ -137,7 +137,7 @@ of all values according to <a href="https://httpwg.org/specs/rfc7230.html#rfc.se
     <h3>
         <code>parent</code>
     </h3>
-    <html><body><pre class="highlight"><code><span class="keyword">let</span> <span class="variable">parent</span>: <a href="/swift-w3c-trace-context/TraceParent"><span class="type">TraceParent</span></a></code></pre></body></html>
+    <html><body><pre class="highlight"><code><span class="keyword">var</span> <span class="variable">parent</span>: <a href="/swift-w3c-trace-context/TraceParent"><span class="type">TraceParent</span></a></code></pre></body></html>
 <div class="summary" role="doc-abstract">
     <p>The <code>TraceParent</code> identifying this trace context.</p>
 
@@ -154,6 +154,95 @@ of all values according to <a href="https://httpwg.org/specs/rfc7230.html#rfc.se
 </div>
 </div>
     </section>
+    <section id="methods">
+        <h2>Methods</h2>
+
+        <div role="article" class="function" id="tracecontext.regenerateparentid()">
+    <h3>
+        <code>regenerate​Parent​ID()</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">public</span> <span class="attribute">mutating</span> <span class="keyword">func</span> <span class="function">regenerateParentID</span>()</code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>Replace the parent-id of the current <code>traceParent</code> with a newly generated one, using the system random number generator.</p>
+
+</div>
+</div>
+<div role="article" class="function" id="tracecontext.regenerateparentid(using:)">
+    <h3>
+        <code>regenerate​Parent​ID(using:​)</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">public</span> <span class="attribute">mutating</span> <span class="keyword">func</span> <span class="function">regenerateParentID</span>&lt;<span class="variable">G</span>: <span class="type">RandomNumberGenerator</span>&gt;(<span class="variable">using</span> <span class="variable">generator</span>: <span class="keyword">inout</span> <span class="type">G</span>)</code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>Replace the parent-id of the current <code>traceParent</code> with a newly generated one, using the given generator as a source for
+randomness.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>generator</th>
+    <td><code class="type">inout G</code></td>
+    <td><p>The random number generator used as a source for generating the new parent-id.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+</div>
+<div role="article" class="function" id="tracecontext.regeneratingparentid()">
+    <h3>
+        <code>regenerating​Parent​ID()</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">func</span> <span class="function">regeneratingParentID</span>() -&gt; <a href="/swift-w3c-trace-context/TraceContext"><span class="type">TraceContext</span></a></code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>Return a copy with its <code>traceParent.parentID</code> replaced with a newly generated one, using the system random number generator.</p>
+
+</div>
+  <h4>Returns</h4>
+  <p>A copy of this <code>TraceContext</code> with a new trace-parent parent-id.</p>
+
+</div>
+<div role="article" class="function" id="tracecontext.regeneratingparentid(using:)">
+    <h3>
+        <code>regenerating​Parent​ID(using:​)</code>
+    </h3>
+    <html><body><pre class="highlight"><code><span class="keyword">public</span> <span class="keyword">func</span> <span class="function">regeneratingParentID</span>&lt;<span class="variable">G</span>: <span class="type">RandomNumberGenerator</span>&gt;(<span class="variable">using</span> <span class="variable">generator</span>: <span class="keyword">inout</span> <span class="type">G</span>) -&gt; <a href="/swift-w3c-trace-context/TraceContext"><span class="type">TraceContext</span></a></code></pre></body></html>
+<div class="summary" role="doc-abstract">
+    <p>Return a copy with its <code>traceParent.parentID</code> replaced with a newly generated one, using the system random number generator.</p>
+
+</div>
+<h4>Parameters</h4>
+
+<table class="parameters">
+  <thead hidden>
+  <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Description</th>
+  </tr>
+  </thead>
+  <tbody>
+    <tr>
+    <th>generator</th>
+    <td><code class="type">inout G</code></td>
+    <td><p>The random number generator used as a source for generating the new parent-id.</p>
+</td>
+</tr>
+  </tbody>
+</table>
+  <h4>Returns</h4>
+  <p>A copy of this <code>TraceContext</code> with a new trace-parent parent-id.</p>
+
+</div>
+    </section>
 
 
 
@@ -162,7 +251,7 @@ of all values according to <a href="https://httpwg.org/specs/rfc7230.html#rfc.se
 
     <footer>
         <p>
-    Generated on <time datetime="2020-09-17T10:33:32+0000">September 17, 2020</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.4</span>.
+    Generated on <time datetime="2020-09-17T13:35:28+0000">September 17, 2020</time> using <a href="https://github.com/SwiftDocOrg/swift-doc">swift-doc</a> <span class="version">1.0.0-beta.4</span>.
 </p>
     </footer>
 </body>
