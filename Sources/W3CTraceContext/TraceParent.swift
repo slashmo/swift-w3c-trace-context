@@ -106,3 +106,46 @@ extension TraceParent: CustomStringConvertible {
         self.rawValue
     }
 }
+
+extension TraceParent {
+    /// Returns a random `TraceParent`, using the given generator as a source for randomness.
+    /// - Parameter generator: The random number generator used as a source for generating the different values.
+    /// - Note: `traceFlags` will be set to 0.
+    /// - Returns: A `TraceParent` with random `traceID` & `parentID`.
+    public static func random<G: RandomNumberGenerator>(using generator: inout G) -> TraceParent {
+        let traceID = Self.randomTraceID(using: &generator)
+        let parentID = Self.randomParentID(using: &generator)
+        return .init(traceID: traceID, parentID: parentID, traceFlags: UInt64(0).paddedHexString(radix: 2))
+    }
+
+    /// Returns a random `TraceParent` using the system random number generator.
+    /// - Note: `traceFlags` will be set to 0.
+    /// - Returns: A `TraceParent` with random `traceID` & `parentID`.
+    public static func random() -> TraceParent {
+        var g = SystemRandomNumberGenerator()
+        return .random(using: &g)
+    }
+
+    static func randomTraceID<G: RandomNumberGenerator>(using generator: inout G) -> String {
+        let traceIDHigh = UInt64
+            .random(in: 1 ... UInt64.max, using: &generator)
+            .paddedHexString(radix: 16)
+        let traceIDLow = UInt64
+            .random(in: 1 ... UInt64.max, using: &generator)
+            .paddedHexString(radix: 16)
+        return traceIDHigh + traceIDLow
+    }
+
+    static func randomParentID<G: RandomNumberGenerator>(using generator: inout G) -> String {
+        UInt64
+            .random(in: 1 ... UInt64.max, using: &generator)
+            .paddedHexString(radix: 16)
+    }
+}
+
+extension UInt64 {
+    func paddedHexString(radix: Int) -> String {
+        let unpadded = String(self, radix: radix, uppercase: false)
+        return String(repeating: "0", count: radix - unpadded.count) + unpadded
+    }
+}

@@ -150,6 +150,15 @@ final class TraceParentRawRepresentableTests: XCTestCase {
 
         XCTAssertNotEqual(parent1, parent2)
     }
+
+    // MARK: - Random
+
+    func test_generate_random_traceParent() {
+        let traceParent = TraceParent.random()
+
+        // validate random trace-parent by parsing its raw value
+        XCTAssertNotNil(TraceParent(rawValue: traceParent.rawValue))
+    }
 }
 
 private func XCTAssertUninitializedTraceParent(_ rawValue: String, file: StaticString = #file, line: UInt = #line) {
