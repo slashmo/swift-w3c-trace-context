@@ -30,6 +30,23 @@ public struct TraceContext: Equatable {
         self.state = state
     }
 
+    /// When `true`, the least significant bit (right-most), denotes that the caller may have recorded trace data.
+    /// When `false`, the caller did not record trace data out-of-band.
+    ///
+    /// - SeeAlso: [W3C TraceContext: Sampled flag](https://www.w3.org/TR/2020/REC-trace-context-1-20200206/#sampled-flag)
+    public var sampled: Bool {
+        get {
+            self.parent.traceFlags.contains(.sampled)
+        }
+        set {
+            if newValue {
+                self.parent.traceFlags.insert(.sampled)
+            } else {
+                self.parent.traceFlags.remove(.sampled)
+            }
+        }
+    }
+
     /// Create a `TraceContext` by parsing the given header values.
     ///
     /// - Parameters:

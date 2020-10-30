@@ -30,7 +30,7 @@ final class TraceContextTests: XCTestCase {
                 parent: TraceParent(
                     traceID: "0af7651916cd43dd8448eb211c80319c",
                     parentID: "b7ad6b7169203331",
-                    traceFlags: "01"
+                    traceFlags: .sampled
                 ),
                 state: TraceState([("rojo", "00f067aa0ba902b7")])
             )
@@ -55,7 +55,7 @@ final class TraceContextTests: XCTestCase {
                 parent: TraceParent(
                     traceID: "0af7651916cd43dd8448eb211c80319c",
                     parentID: "b7ad6b7169203331",
-                    traceFlags: "01"
+                    traceFlags: .sampled
                 ),
                 state: TraceState([])
             )
@@ -76,5 +76,18 @@ final class TraceContextTests: XCTestCase {
         let newTraceContext = traceContext.regeneratingParentID()
 
         XCTAssertNotEqual(newTraceContext.parent.parentID, traceContext.parent.parentID)
+    }
+
+    func test_update_sampled_flag_sets_parent_trace_flags() {
+        var traceContext = TraceContext(parent: .random(), state: .none)
+        XCTAssertFalse(traceContext.sampled)
+
+        traceContext.sampled = true
+        XCTAssert(traceContext.sampled)
+        XCTAssert(traceContext.parent.traceFlags.contains(.sampled))
+
+        traceContext.sampled = false
+        XCTAssertFalse(traceContext.sampled)
+        XCTAssertFalse(traceContext.parent.traceFlags.contains(.sampled))
     }
 }
