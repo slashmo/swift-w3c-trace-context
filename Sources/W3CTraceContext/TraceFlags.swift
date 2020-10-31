@@ -11,6 +11,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+/// Represents an 8-bit field that controls tracing flags such as sampling.
 public struct TraceFlags: OptionSet {
     public let rawValue: UInt8
 
