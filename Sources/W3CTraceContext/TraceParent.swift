@@ -31,20 +31,12 @@ public struct TraceParent {
     /// An 8-bit field that controls tracing flags such as sampling, trace level, etc.
     ///
     /// - SeeAlso: [W3C TraceContext: trace-flags](https://www.w3.org/TR/2020/REC-trace-context-1-20200206/#trace-flags)
-    public let traceFlags: String
+    public internal(set) var traceFlags: TraceFlags
 
-    init(traceID: String, parentID: String, traceFlags: String) {
+    init(traceID: String, parentID: String, traceFlags: TraceFlags) {
         self.traceID = traceID
         self.parentID = parentID
         self.traceFlags = traceFlags
-    }
-
-    /// When `true`, the least significant bit (right-most), denotes that the caller may have recorded trace data.
-    /// When `false`, the caller did not record trace data out-of-band.
-    ///
-    /// - SeeAlso: [W3C TraceContext: Sampled flag](https://www.w3.org/TR/2020/REC-trace-context-1-20200206/#sampled-flag)
-    public var sampled: Bool {
-        self.traceFlags == "01"
     }
 
     /// The HTTP header name for `TraceParent`.
@@ -90,9 +82,8 @@ extension TraceParent: RawRepresentable {
         self.parentID = String(parentIDComponent)
 
         // trace-flags
-        let traceFlagsComponent = components[3]
-        guard traceFlagsComponent.count == 2 else { return nil }
-        self.traceFlags = String(traceFlagsComponent)
+        guard let traceFlags = UInt8(components[3], radix: 2).map(TraceFlags.init) else { return nil }
+        self.traceFlags = traceFlags.rawValue <= 1 ? traceFlags : []
     }
 
     /// A `String` representation of this trace parent, suitable for injecting into HTTP headers.
@@ -115,7 +106,7 @@ extension TraceParent {
     public static func random<G: RandomNumberGenerator>(using generator: inout G) -> TraceParent {
         let traceID = Self.randomTraceID(using: &generator)
         let parentID = Self.randomParentID(using: &generator)
-        return .init(traceID: traceID, parentID: parentID, traceFlags: UInt64(0).paddedHexString(radix: 2))
+        return .init(traceID: traceID, parentID: parentID, traceFlags: [])
     }
 
     /// Returns a random `TraceParent` using the system random number generator.

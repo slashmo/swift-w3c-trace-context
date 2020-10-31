@@ -30,6 +30,22 @@ public struct TraceContext: Equatable {
         self.state = state
     }
 
+    /// Whether the caller may have recorded trace data.
+    ///
+    /// - SeeAlso: [W3C TraceContext: Sampled flag](https://www.w3.org/TR/2020/REC-trace-context-1-20200206/#sampled-flag)
+    public var sampled: Bool {
+        get {
+            self.parent.traceFlags.contains(.sampled)
+        }
+        set {
+            if newValue {
+                self.parent.traceFlags.insert(.sampled)
+            } else {
+                self.parent.traceFlags.remove(.sampled)
+            }
+        }
+    }
+
     /// Create a `TraceContext` by parsing the given header values.
     ///
     /// - Parameters:

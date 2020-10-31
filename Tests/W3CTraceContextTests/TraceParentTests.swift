@@ -21,7 +21,7 @@ final class TraceParentRawRepresentableTests: XCTestCase {
         let traceParent = TraceParent(
             traceID: "0af7651916cd43dd8448eb211c80319c",
             parentID: "b7ad6b7169203331",
-            traceFlags: "01"
+            traceFlags: .sampled
         )
 
         XCTAssertEqual(traceParent.rawValue, "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01")
@@ -38,10 +38,21 @@ final class TraceParentRawRepresentableTests: XCTestCase {
 
         XCTAssertEqual(
             traceParent,
-            TraceParent(traceID: "0af7651916cd43dd8448eb211c80319c", parentID: "b7ad6b7169203331", traceFlags: "01")
+            TraceParent(traceID: "0af7651916cd43dd8448eb211c80319c", parentID: "b7ad6b7169203331", traceFlags: .sampled)
         )
+    }
 
-        XCTAssert(traceParent.sampled)
+    func testDecodeValidTraceParentStringWithUnsupportedTraceFlags() {
+        let rawValue = "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-11"
+        guard let traceParent = TraceParent(rawValue: rawValue) else {
+            XCTFail("Could not decode valid trace parent")
+            return
+        }
+
+        XCTAssertEqual(
+            traceParent,
+            TraceParent(traceID: "0af7651916cd43dd8448eb211c80319c", parentID: "b7ad6b7169203331", traceFlags: [])
+        )
     }
 
     func testDecodeValidTraceParentStringWithoutSampledFlag() {
@@ -53,10 +64,10 @@ final class TraceParentRawRepresentableTests: XCTestCase {
 
         XCTAssertEqual(
             traceParent,
-            TraceParent(traceID: "0af7651916cd43dd8448eb211c80319c", parentID: "b7ad6b7169203331", traceFlags: "00")
+            TraceParent(traceID: "0af7651916cd43dd8448eb211c80319c", parentID: "b7ad6b7169203331", traceFlags: [])
         )
 
-        XCTAssertFalse(traceParent.sampled)
+        XCTAssertFalse(traceParent.traceFlags.contains(.sampled))
     }
 
     func testDecodeFailsWithTooLongRawValue() {
