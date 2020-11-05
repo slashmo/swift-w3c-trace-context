@@ -20,7 +20,7 @@ public struct TraceParent {
     /// The ID of the whole trace forest, used to uniquely identify a distributed trace through a system.
     ///
     /// - SeeAlso: [W3C TraceContext: trace-id](https://www.w3.org/TR/2020/REC-trace-context-1-20200206/#trace-id)
-    public let traceID: String
+    public let traceID: TraceID
 
     /// The ID of the incoming request as known by the caller (in some tracing systems, this is known as the span-id, where a span is the execution of
     /// a client request).
@@ -33,7 +33,7 @@ public struct TraceParent {
     /// - SeeAlso: [W3C TraceContext: trace-flags](https://www.w3.org/TR/2020/REC-trace-context-1-20200206/#trace-flags)
     public internal(set) var traceFlags: TraceFlags
 
-    init(traceID: String, parentID: String, traceFlags: TraceFlags) {
+    init(traceID: TraceID, parentID: String, traceFlags: TraceFlags) {
         self.traceID = traceID
         self.parentID = parentID
         self.traceFlags = traceFlags
@@ -71,9 +71,8 @@ extension TraceParent: RawRepresentable {
 
         // trace-id
         let traceIDComponent = components[1]
-        guard traceIDComponent.count == 32 else { return nil }
-        guard traceIDComponent != String(repeating: "0", count: 32) else { return nil }
-        self.traceID = String(traceIDComponent)
+        guard let traceID = TraceID(hexString: traceIDComponent) else { return nil }
+        self.traceID = traceID
 
         // parent-id
         let parentIDComponent = components[2]
@@ -104,7 +103,7 @@ extension TraceParent {
     /// - Note: `traceFlags` will be set to 0.
     /// - Returns: A `TraceParent` with random `traceID` & `parentID`.
     public static func random<G: RandomNumberGenerator>(using generator: inout G) -> TraceParent {
-        let traceID = Self.randomTraceID(using: &generator)
+        let traceID = TraceID.random(using: &generator)
         let parentID = Self.randomParentID(using: &generator)
         return .init(traceID: traceID, parentID: parentID, traceFlags: [])
     }
@@ -115,16 +114,6 @@ extension TraceParent {
     public static func random() -> TraceParent {
         var g = SystemRandomNumberGenerator()
         return .random(using: &g)
-    }
-
-    static func randomTraceID<G: RandomNumberGenerator>(using generator: inout G) -> String {
-        let traceIDHigh = UInt64
-            .random(in: 1 ... UInt64.max, using: &generator)
-            .paddedHexString(radix: 16)
-        let traceIDLow = UInt64
-            .random(in: 1 ... UInt64.max, using: &generator)
-            .paddedHexString(radix: 16)
-        return traceIDHigh + traceIDLow
     }
 
     static func randomParentID<G: RandomNumberGenerator>(using generator: inout G) -> String {
