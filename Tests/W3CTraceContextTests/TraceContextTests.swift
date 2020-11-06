@@ -28,7 +28,7 @@ final class TraceContextTests: XCTestCase {
             traceContext,
             TraceContext(
                 parent: TraceParent(
-                    traceID: TraceID(hexString: "0af7651916cd43dd8448eb211c80319c")!,
+                    traceID: TraceID(hexString: "0af7651916cd43dd8448eb211c80319c")!, // !-safe, we know this is a valid traceID
                     parentID: "b7ad6b7169203331",
                     traceFlags: .sampled
                 ),
@@ -53,7 +53,7 @@ final class TraceContextTests: XCTestCase {
             traceContext,
             TraceContext(
                 parent: TraceParent(
-                    traceID: TraceID(hexString: "0af7651916cd43dd8448eb211c80319c")!,
+                    traceID: TraceID(hexString: "0af7651916cd43dd8448eb211c80319c")!, // !-safe, we know this is a valid traceID
                     parentID: "b7ad6b7169203331",
                     traceFlags: .sampled
                 ),
