@@ -5,7 +5,15 @@ on: [push, pull_request]
 jobs:
   unit-test:
     runs-on: ubuntu-latest
-    container: swift:5.2
+    strategy:
+      fail-fast: false
+      matrix:
+        images:
+        - swift:5.2
+        - swift:5.3
+        - swiftlang/swift:nightly-bionic
+    container:
+      image: ${{ matrix.images }}
     steps:
       - name: Checkout
         uses: actions/checkout@v1
