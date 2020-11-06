@@ -92,7 +92,7 @@ final class TraceIDTests: XCTestCase {
     }
 
     func test_generatingRandomTraceID_succeeds_usingTestNumberGenerator() {
-        var generator = QueueBasedRandomNumberGenerator(queue: [1, 2])
+        var generator = TestRandomNumberGenerator(queue: [1, 2])
 
         let traceID = TraceID.random(using: &generator)
         XCTAssertEqual(traceID, TraceID(high: 1, low: 2))

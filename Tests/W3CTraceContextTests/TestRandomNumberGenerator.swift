@@ -13,7 +13,7 @@
 
 import XCTest
 
-struct QueueBasedRandomNumberGenerator: RandomNumberGenerator {
+struct TestRandomNumberGenerator: RandomNumberGenerator {
     var queue: [UInt64]
     private let file: StaticString
     private let line: UInt
