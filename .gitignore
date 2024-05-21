@@ -1,6 +1,6 @@
 .DS_Store
-/.build
-/Packages
-/*.xcodeproj
-xcuserdata/
-.swiftpm
+.build/
+.swiftpm/
+.vscode/
+.devcontainer/
+Package.resolved

@@ -1,96 +1,149 @@
-//===----------------------------------------------------------------------===//
-//
-// This source file is part of the Swift W3C Trace Context open source project
-//
-// Copyright (c) 2020 Moritz Lang and the Swift W3C Trace Context project authors
-// Licensed under Apache License v2.0
-//
-// See LICENSE.txt for license information
-//
-// SPDX-License-Identifier: Apache-2.0
-//
-//===----------------------------------------------------------------------===//
+/// Context of a single span within a distributed trace.
+///
+/// Serializing and propagating this context across asynchronous boundaries (e.g. via HTTP headers)
+/// enables _distributed_ tracing, allowing a trace to be comprised of spans that exist on different nodes of a distributed system.
+///
+/// [W3C TraceContext](https://www.w3.org/TR/trace-context-1/)
+public struct TraceContext: Sendable {
+    /// The unique ID of the trace this span belongs to.
+    public let traceID: TraceID
 
-/// An implementation of [W3C TraceContext](https://www.w3.org/TR/2020/REC-trace-context-1-20200206/),
-/// combining `TraceParent` and `TraceState`.
-public struct TraceContext: Equatable {
-    /// The `TraceParent` identifying this trace context.
-    public private(set) var parent: TraceParent
+    /// The unique ID of this span.
+    public let spanID: SpanID
 
-    /// The `TraceState` containing potentially vendor-specific trace information.
-    public let state: TraceState
+    /// The tracing flags for this span, e.g. whether it's sampled.
+    public let flags: TraceFlags
 
-    /// Create a `TraceContext` from the given parent and state.
+    /// Vendor-specific string values to be propagated alongside this span.
+    public var state: TraceState
+
+    /// Create a trace context for a span manually with the given values.
     ///
     /// - Parameters:
-    ///   - parent: The `TraceParent` stored in this context.
-    ///   - state: The `TraceState` stored in this context.
-    public init(parent: TraceParent, state: TraceState) {
-        self.parent = parent
+    ///   - traceID: The unique ID of the trace this span belongs to.
+    ///   - spanID: The unique ID of this span.
+    ///   - flags: The trace flags for this span.
+    ///   - state: Vendor-specific string values to be propagated alongside this span.
+    public init(traceID: TraceID, spanID: SpanID, flags: TraceFlags, state: TraceState) {
+        self.traceID = traceID
+        self.spanID = spanID
+        self.flags = flags
         self.state = state
     }
 
-    /// Whether the caller may have recorded trace data.
-    ///
-    /// - SeeAlso: [W3C TraceContext: Sampled flag](https://www.w3.org/TR/2020/REC-trace-context-1-20200206/#sampled-flag)
-    public var sampled: Bool {
-        get {
-            self.parent.traceFlags.contains(.sampled)
-        }
-        set {
-            if newValue {
-                self.parent.traceFlags.insert(.sampled)
-            } else {
-                self.parent.traceFlags.remove(.sampled)
-            }
-        }
-    }
-
-    /// Create a `TraceContext` by parsing the given header values.
+    /// Create a trace context by decoding the given header values.
     ///
     /// - Parameters:
-    ///   - parentRawValue: HTTP header value for the `traceparent` key.
-    ///   - stateRawValue: HTTP header value for the `tracestate` key.
-    ///
-    /// When receiving multiple header fields for `tracestate`, the `state` argument should be a joined, comma-separated, `String`
-    /// of all values according to [HTTP RFC 7230: Field Order](https://httpwg.org/specs/rfc7230.html#rfc.section.3.2.2).
-    public init?(parent parentRawValue: String, state stateRawValue: String) {
-        guard let parent = TraceParent(rawValue: parentRawValue) else { return nil }
-        self.parent = parent
-        self.state = TraceState(rawValue: stateRawValue) ?? TraceState([])
+    ///   - traceParentHeaderValue: The value of the `traceparent` header.
+    ///   - traceStateHeaderValue: The value of the optional `tracestate` header.
+    public init(traceParentHeaderValue: String, traceStateHeaderValue: String? = nil) throws {
+        let traceParent = Array(traceParentHeaderValue.utf8)
+
+        guard traceParent.count == 55 else {
+            throw TraceParentDecodingError(.invalidTraceParentLength(traceParentHeaderValue.count))
+        }
+
+        // version
+        guard traceParent[0] == 48, traceParent[1] == 48 else {
+            let version = String(decoding: traceParent[0...1], as: UTF8.self)
+            throw TraceParentDecodingError(.unsupportedVersion(version))
+        }
+
+        guard traceParent[2] == 45, traceParent[35] == 45, traceParent[52] == 45 else {
+            throw TraceParentDecodingError(.invalidDelimiters)
+        }
+
+        // trace ID
+
+        var traceIDBytes = TraceID.Bytes(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        withUnsafeMutableBytes(of: &traceIDBytes) { ptr in
+            Hex.convert(traceParent[3 ..< 35], toBytes: ptr)
+        }
+        if traceIDBytes.0 == 0,
+           traceIDBytes.1 == 0,
+           traceIDBytes.2 == 0,
+           traceIDBytes.3 == 0,
+           traceIDBytes.4 == 0,
+           traceIDBytes.5 == 0,
+           traceIDBytes.6 == 0,
+           traceIDBytes.7 == 0,
+           traceIDBytes.8 == 0,
+           traceIDBytes.9 == 0,
+           traceIDBytes.10 == 0,
+           traceIDBytes.11 == 0,
+           traceIDBytes.12 == 0,
+           traceIDBytes.13 == 0,
+           traceIDBytes.14 == 0,
+           traceIDBytes.15 == 0
+        {
+            throw TraceParentDecodingError(
+                .invalidTraceID(String(decoding: traceParent[3 ..< 35], as: UTF8.self))
+            )
+        }
+
+        // span ID
+
+        var spanIDBytes = SpanID.Bytes(0, 0, 0, 0, 0, 0, 0, 0)
+        withUnsafeMutableBytes(of: &spanIDBytes) { ptr in
+            Hex.convert(traceParent[36 ..< 52], toBytes: ptr)
+        }
+        if spanIDBytes.0 == 0,
+           spanIDBytes.1 == 0,
+           spanIDBytes.2 == 0,
+           spanIDBytes.3 == 0,
+           spanIDBytes.4 == 0,
+           spanIDBytes.5 == 0,
+           spanIDBytes.6 == 0,
+           spanIDBytes.7 == 0
+        {
+            throw TraceParentDecodingError(
+                .invalidSpanID(String(decoding: traceParent[36 ..< 52], as: UTF8.self))
+            )
+        }
+
+        // flags
+
+        var traceFlagsRawValue: UInt8 = 0
+        withUnsafeMutableBytes(of: &traceFlagsRawValue) { ptr in
+            Hex.convert(traceParent[53 ..< 55], toBytes: ptr)
+        }
+        let flags = TraceFlags(rawValue: traceFlagsRawValue)
+
+        let state: TraceState
+        if let traceStateHeaderValue, !traceStateHeaderValue.isEmpty {
+            state = try TraceState(decoding: traceStateHeaderValue)
+        } else {
+            state = TraceState()
+        }
+
+        self = TraceContext(
+            traceID: TraceID(bytes: traceIDBytes),
+            spanID: SpanID(bytes: spanIDBytes),
+            flags: flags,
+            state: state
+        )
+    }
+
+    private enum DecodingState: Hashable {
+        case parsingVendor
     }
 }
 
-extension TraceContext {
-    /// Replace the parent-id of the current `traceParent` with a newly generated one, using the system random number generator.
-    public mutating func regenerateParentID() {
-        var generator = SystemRandomNumberGenerator()
-        self.regenerateParentID(using: &generator)
+extension TraceContext: Hashable {}
+
+/// An error thrown while decoding a malformed trace parent header.
+public struct TraceParentDecodingError: Error {
+    package let reason: Reason
+
+    init(_ reason: Reason) {
+        self.reason = reason
     }
 
-    /// Replace the parent-id of the current `traceParent` with a newly generated one, using the given generator as a source for
-    /// randomness.
-    ///
-    /// - Parameter generator: The random number generator used as a source for generating the new parent-id.
-    public mutating func regenerateParentID<G: RandomNumberGenerator>(using generator: inout G) {
-        self.parent.parentID = TraceParent.randomParentID(using: &generator)
-    }
-
-    /// Return a copy with its `traceParent.parentID` replaced with a newly generated one, using the system random number generator.
-    ///
-    /// - Returns: A copy of this `TraceContext` with a new trace-parent parent-id.
-    public func regeneratingParentID() -> TraceContext {
-        var generator = SystemRandomNumberGenerator()
-        return self.regeneratingParentID(using: &generator)
-    }
-
-    /// Return a copy with its `traceParent.parentID` replaced with a newly generated one, using the system random number generator.
-    ///
-    /// - Parameter generator: The random number generator used as a source for generating the new parent-id.
-    /// - Returns: A copy of this `TraceContext` with a new trace-parent parent-id.
-    public func regeneratingParentID<G: RandomNumberGenerator>(using generator: inout G) -> TraceContext {
-        var copy = self
-        copy.regenerateParentID(using: &generator)
-        return copy
+    package enum Reason: Equatable {
+        case invalidTraceParentLength(Int)
+        case unsupportedVersion(String)
+        case invalidDelimiters
+        case invalidTraceID(String)
+        case invalidSpanID(String)
     }
 }

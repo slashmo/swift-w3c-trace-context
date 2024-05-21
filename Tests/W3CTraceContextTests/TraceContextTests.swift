@@ -1,93 +1,88 @@
-//===----------------------------------------------------------------------===//
-//
-// This source file is part of the Swift W3C Trace Context open source project
-//
-// Copyright (c) 2020 Moritz Lang and the Swift W3C Trace Context project authors
-// Licensed under Apache License v2.0
-//
-// See LICENSE.txt for license information
-//
-// SPDX-License-Identifier: Apache-2.0
-//
-//===----------------------------------------------------------------------===//
-
-@testable import W3CTraceContext
+import W3CTraceContext
 import XCTest
 
 final class TraceContextTests: XCTestCase {
-    func testInitWithValidRawValues() {
-        let traceParentRawValue = "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
-        let traceStateRawValue = "rojo=00f067aa0ba902b7"
-
-        guard let traceContext = TraceContext(parent: traceParentRawValue, state: traceStateRawValue) else {
-            XCTFail("Could not decode valid trace context")
-            return
-        }
-
-        XCTAssertEqual(
-            traceContext,
-            TraceContext(
-                parent: TraceParent(
-                    traceID: TraceID(hexString: "0af7651916cd43dd8448eb211c80319c")!, // !-safe, we know this is a valid traceID
-                    parentID: "b7ad6b7169203331",
-                    traceFlags: .sampled
-                ),
-                state: TraceState([("rojo", "00f067aa0ba902b7")])
-            )
+    func test_decodingHeaderValues_withValidTraceParentHeader_returnsDecodedTraceContext() throws {
+        let traceContext = try TraceContext(
+            traceParentHeaderValue: "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
         )
+
+        XCTAssertEqual(traceContext, TraceContext(
+            traceID: TraceID(bytes: (10, 247, 101, 25, 22, 205, 67, 221, 132, 72, 235, 33, 28, 128, 49, 156)),
+            spanID: SpanID(bytes: (183, 173, 107, 113, 105, 32, 51, 49)),
+            flags: .sampled,
+            state: TraceState()
+        ))
     }
 
-    func testInitWithInvalidTraceParent() {
-        XCTAssertNil(TraceContext(parent: "invalid", state: ""))
-    }
-
-    func testInitWithValidTraceParentAndInvalidTraceState() {
-        let traceParentRawValue = "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
-
-        guard let traceContext = TraceContext(parent: traceParentRawValue, state: "invalid") else {
-            XCTFail("Could not decode valid trace context")
-            return
-        }
-
-        XCTAssertEqual(
-            traceContext,
-            TraceContext(
-                parent: TraceParent(
-                    traceID: TraceID(hexString: "0af7651916cd43dd8448eb211c80319c")!, // !-safe, we know this is a valid traceID
-                    parentID: "b7ad6b7169203331",
-                    traceFlags: .sampled
-                ),
-                state: TraceState([])
-            )
+    func test_decodingHeaderValues_withValidTraceParentAndTraceStateHeaders_returnsDecodedTraceContext() throws {
+        let traceContext = try TraceContext(
+            traceParentHeaderValue: "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01",
+            traceStateHeaderValue: "foo=bar,tenant1@system=1,tenant2@system=2"
         )
+
+        XCTAssertEqual(traceContext, TraceContext(
+            traceID: TraceID(bytes: (10, 247, 101, 25, 22, 205, 67, 221, 132, 72, 235, 33, 28, 128, 49, 156)),
+            spanID: SpanID(bytes: (183, 173, 107, 113, 105, 32, 51, 49)),
+            flags: .sampled,
+            state: TraceState([
+                (.simple("foo"), "bar"),
+                (.tenant("tenant1", in: "system"), "1"),
+                (.tenant("tenant2", in: "system"), "2"),
+            ])
+        ))
     }
 
-    func test_regenerate_trace_parent_parent_id_in_place() {
-        var traceContext = TraceContext(parent: .random(), state: .none)
-        let previousTraceParentID = traceContext.parent.parentID
-
-        traceContext.regenerateParentID()
-
-        XCTAssertNotEqual(traceContext.parent.parentID, previousTraceParentID)
+    func test_decodingHeaderValues_withInvalidLength_throwsDecodingError() throws {
+        do {
+            let traceContext = try TraceContext(traceParentHeaderValue: String(repeating: "🏎️", count: 100))
+            XCTFail("Expected decoding error, decoded trace context: \(traceContext)")
+        } catch let error as TraceParentDecodingError {
+            XCTAssertEqual(error.reason, .invalidTraceParentLength(100))
+        }
     }
 
-    func test_regenerate_trace_parent_parent_id() {
-        let traceContext = TraceContext(parent: .random(), state: .none)
-        let newTraceContext = traceContext.regeneratingParentID()
-
-        XCTAssertNotEqual(newTraceContext.parent.parentID, traceContext.parent.parentID)
+    func test_decodingHeaderValues_withUnsupportedVersion_throwsDecodingError() throws {
+        do {
+            let traceContext = try TraceContext(
+                traceParentHeaderValue: "01-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
+            )
+            XCTFail("Expected decoding error, decoded trace context: \(traceContext)")
+        } catch let error as TraceParentDecodingError {
+            XCTAssertEqual(error.reason, .unsupportedVersion("01"))
+        }
     }
 
-    func test_update_sampled_flag_sets_parent_trace_flags() {
-        var traceContext = TraceContext(parent: .random(), state: .none)
-        XCTAssertFalse(traceContext.sampled)
+    func test_decodingHeaderValues_withInvalidDelimiters_throwsDecodingError() throws {
+        do {
+            let traceContext = try TraceContext(
+                traceParentHeaderValue: "00_0af7651916cd43dd8448eb211c80319c+b7ad6b7169203331!01"
+            )
+            XCTFail("Expected decoding error, decoded trace context: \(traceContext)")
+        } catch let error as TraceParentDecodingError {
+            XCTAssertEqual(error.reason, .invalidDelimiters)
+        }
+    }
 
-        traceContext.sampled = true
-        XCTAssert(traceContext.sampled)
-        XCTAssert(traceContext.parent.traceFlags.contains(.sampled))
+    func test_decodingHeaderValues_withAllZeroesTraceID_throwsDecodingError() throws {
+        do {
+            let traceContext = try TraceContext(
+                traceParentHeaderValue: "00-00000000000000000000000000000000-b7ad6b7169203331-01"
+            )
+            XCTFail("Expected decoding error, decoded trace context: \(traceContext)")
+        } catch let error as TraceParentDecodingError {
+            XCTAssertEqual(error.reason, .invalidTraceID("00000000000000000000000000000000"))
+        }
+    }
 
-        traceContext.sampled = false
-        XCTAssertFalse(traceContext.sampled)
-        XCTAssertFalse(traceContext.parent.traceFlags.contains(.sampled))
+    func test_decodingHeaderValues_withAllZeroesSpanID_throwsDecodingError() throws {
+        do {
+            let traceContext = try TraceContext(
+                traceParentHeaderValue: "00-0af7651916cd43dd8448eb211c80319c-0000000000000000-01"
+            )
+            XCTFail("Expected decoding error, decoded trace context: \(traceContext)")
+        } catch let error as TraceParentDecodingError {
+            XCTAssertEqual(error.reason, .invalidSpanID("0000000000000000"))
+        }
     }
 }
