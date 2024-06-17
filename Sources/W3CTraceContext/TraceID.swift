@@ -16,6 +16,27 @@ public struct TraceID: Sendable {
         self._bytes = bytes
     }
 
+    /// Create a random trace ID using the given random number generator.
+    ///
+    /// - Parameter randomNumberGenerator: The random number generator used to create random bytes for the trace ID.
+    /// - Returns: A random trace ID.
+    public static func random(using randomNumberGenerator: inout some RandomNumberGenerator) -> TraceID {
+        var bytes: TraceID.Bytes = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        withUnsafeMutableBytes(of: &bytes) { ptr in
+            ptr.storeBytes(of: randomNumberGenerator.next().bigEndian, as: UInt64.self)
+            ptr.storeBytes(of: randomNumberGenerator.next().bigEndian, toByteOffset: 8, as: UInt64.self)
+        }
+        return TraceID(bytes: bytes)
+    }
+
+    /// Create a random trace ID.
+    ///
+    /// - Returns: A random trace ID.
+    public static func random() -> TraceID {
+        var generator = SystemRandomNumberGenerator()
+        return random(using: &generator)
+    }
+
     /// A 16-byte array.
     public typealias Bytes = (
         UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,

@@ -16,6 +16,26 @@ public struct SpanID: Sendable {
         self._bytes = bytes
     }
 
+    /// Create a random span ID using the given random number generator.
+    ///
+    /// - Parameter randomNumberGenerator: The random number generator used to create random bytes for the span ID.
+    /// - Returns: A random span ID.
+    public static func random(using randomNumberGenerator: inout some RandomNumberGenerator) -> SpanID {
+        var bytes: SpanID.Bytes = (0, 0, 0, 0, 0, 0, 0, 0)
+        withUnsafeMutableBytes(of: &bytes) { ptr in
+            ptr.storeBytes(of: randomNumberGenerator.next().bigEndian, as: UInt64.self)
+        }
+        return SpanID(bytes: bytes)
+    }
+
+    /// Create a random span ID.
+    ///
+    /// - Returns: A random span ID.
+    public static func random() -> SpanID {
+        var generator = SystemRandomNumberGenerator()
+        return random(using: &generator)
+    }
+
     /// An 8-byte array.
     public typealias Bytes = (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8)
 }
