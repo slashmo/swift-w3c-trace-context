@@ -2,6 +2,22 @@ import W3CTraceContext
 import XCTest
 
 final class TraceStateTests: XCTestCase {
+    func test_init_withDuplicateVendors_usesLastValueForVendor() {
+        let traceState = TraceState([
+            (.simple("my-system"), "42"),
+            (.simple("other-system"), "42"),
+            (.simple("my-system"), "84"),
+        ])
+
+        XCTAssertEqual(
+            traceState,
+            TraceState([
+                (.simple("my-system"), "84"),
+                (.simple("other-system"), "42"),
+            ])
+        )
+    }
+
     func test_subscript_previouslyEmpty() {
         var traceState = TraceState()
 
@@ -53,6 +69,15 @@ final class TraceStateTests: XCTestCase {
             TraceState.Element(vendor: vendor1, value: "84"),
             TraceState.Element(vendor: vendor2, value: "42"),
         ])
+    }
+
+    func test_subscript_withNilValue_withExistingEntryForVendor_removesPreviousEntry() {
+        let vendor = TraceState.Vendor.simple("my-system")
+        var traceState = TraceState([(vendor, "42")])
+
+        traceState[vendor] = nil
+
+        XCTAssertNil(traceState[vendor])
     }
 
     func test_vendorDescription_simple() {
