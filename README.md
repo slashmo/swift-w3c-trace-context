@@ -1,6 +1,7 @@
 # Swift W3C Trace Context
 
 [![Swift 5.9](https://img.shields.io/badge/Swift-5.9-brightgreen.svg)](https://swift.org/download)
+[![CI](https://github.com/slashmo/swift-w3c-trace-context/actions/workflows/ci.yml/badge.svg)](https://github.com/slashmo/swift-w3c-trace-context/actions/workflows/ci.yml)
 
 A Swift implementation of the [W3C Trace Context](https://www.w3.org/TR/trace-context-1/) standard.
 
