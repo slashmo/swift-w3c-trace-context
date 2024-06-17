@@ -11,6 +11,7 @@ context propagation, implementing the [W3C Trace Context](https://www.w3.org/TR/
 
 ### Trace Context
 
+- <doc:generate-random-ids>
 - ``TraceContext``
 - ``SpanID``
 - ``TraceID``
