@@ -124,6 +124,22 @@ public struct TraceContext: Sendable {
         )
     }
 
+    /// A string representation of the trace context parts that are propagated via the `traceparent` header.
+    public var traceParentHeaderValue: String {
+        let traceFlagsUnpadded = String(flags.rawValue, radix: 16, uppercase: false)
+        let traceFlags = traceFlagsUnpadded.count == 1 ? "0\(traceFlagsUnpadded)" : traceFlagsUnpadded
+        return "00-\(traceID)-\(spanID)-\(traceFlags)"
+    }
+
+    /// A string representation of the trace state, to be propagated via the `tracestate` header.
+    public var traceStateHeaderValue: String? {
+        guard !state.isEmpty else { return nil }
+        return state
+            .lazy
+            .map { "\($0.vendor)=\($0.value)" }
+            .joined(separator: ", ")
+    }
+
     private enum DecodingState: Hashable {
         case parsingVendor
     }

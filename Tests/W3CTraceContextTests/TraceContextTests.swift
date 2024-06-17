@@ -85,4 +85,73 @@ final class TraceContextTests: XCTestCase {
             XCTAssertEqual(error.reason, .invalidSpanID("0000000000000000"))
         }
     }
+
+    func test_traceParentHeaderValue_withSampledFlag() {
+        let traceContext = TraceContext(
+            traceID: .oneToSixteen,
+            spanID: .oneToEight,
+            flags: .sampled,
+            state: TraceState()
+        )
+
+        XCTAssertEqual(traceContext.traceParentHeaderValue, "00-0102030405060708090a0b0c0d0e0f10-0102030405060708-01")
+    }
+
+    func test_traceParentHeaderValue_withoutSampledFlag() {
+        let traceContext = TraceContext(
+            traceID: .oneToSixteen,
+            spanID: .oneToEight,
+            flags: [],
+            state: TraceState()
+        )
+
+        XCTAssertEqual(traceContext.traceParentHeaderValue, "00-0102030405060708090a0b0c0d0e0f10-0102030405060708-00")
+    }
+
+    func test_traceStateHeaderValue_withEmptyTraceState_returnsNil() {
+        let traceContext = TraceContext(
+            traceID: .oneToSixteen,
+            spanID: .oneToEight,
+            flags: [],
+            state: TraceState()
+        )
+
+        XCTAssertNil(traceContext.traceStateHeaderValue)
+    }
+
+    func test_traceStateHeaderValue_withSingleTraceStateEntryWithSimpleVendor() {
+        let traceContext = TraceContext(
+            traceID: .oneToSixteen,
+            spanID: .oneToEight,
+            flags: [],
+            state: TraceState([(.simple("vendor"), "value")])
+        )
+
+        XCTAssertEqual(traceContext.traceStateHeaderValue, "vendor=value")
+    }
+
+    func test_traceStateHeaderValue_withSingleTraceStateEntryWithMultitenantVendor() {
+        let traceContext = TraceContext(
+            traceID: .oneToSixteen,
+            spanID: .oneToEight,
+            flags: [],
+            state: TraceState([(.tenant("tenant", in: "system"), "value")])
+        )
+
+        XCTAssertEqual(traceContext.traceStateHeaderValue, "tenant@system=value")
+    }
+
+    func test_traceStateHeaderValue_withMultipleTraceStateEntries() {
+        let traceContext = TraceContext(
+            traceID: .oneToSixteen,
+            spanID: .oneToEight,
+            flags: [],
+            state: TraceState([
+                (.simple("system"), "value1"),
+                (.tenant("tenant", in: "system"), "value2"),
+            ])
+        )
+
+        XCTAssertEqual(traceContext.traceStateHeaderValue, "system=value1, tenant@system=value2")
+    }
 }
