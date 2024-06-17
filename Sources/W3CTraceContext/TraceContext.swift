@@ -1,3 +1,17 @@
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the Swift W3C TraceContext open source project
+//
+// Copyright (c) 2024 Moritz Lang and the Swift W3C TraceContext project
+// authors
+// Licensed under Apache License v2.0
+//
+// See LICENSE.txt for license information
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//===----------------------------------------------------------------------===//
+
 /// Context of a single span within a distributed trace.
 ///
 /// Serializing and propagating this context across asynchronous boundaries (e.g. via HTTP headers)
@@ -45,7 +59,7 @@ public struct TraceContext: Sendable {
 
         // version
         guard traceParent[0] == 48, traceParent[1] == 48 else {
-            let version = String(decoding: traceParent[0...1], as: UTF8.self)
+            let version = String(decoding: traceParent[0 ... 1], as: UTF8.self)
             throw TraceParentDecodingError(.unsupportedVersion(version))
         }
 
@@ -109,11 +123,10 @@ public struct TraceContext: Sendable {
         }
         let flags = TraceFlags(rawValue: traceFlagsRawValue)
 
-        let state: TraceState
-        if let traceStateHeaderValue, !traceStateHeaderValue.isEmpty {
-            state = try TraceState(decoding: traceStateHeaderValue)
+        let state: TraceState = if let traceStateHeaderValue, !traceStateHeaderValue.isEmpty {
+            try TraceState(decoding: traceStateHeaderValue)
         } else {
-            state = TraceState()
+            TraceState()
         }
 
         self = TraceContext(

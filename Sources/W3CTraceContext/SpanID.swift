@@ -1,3 +1,17 @@
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the Swift W3C TraceContext open source project
+//
+// Copyright (c) 2024 Moritz Lang and the Swift W3C TraceContext project
+// authors
+// Licensed under Apache License v2.0
+//
+// See LICENSE.txt for license information
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//===----------------------------------------------------------------------===//
+
 /// Uniquely identifies a distributed tracing span using an 8-byte array.
 ///
 /// [W3C TraceContext: parent-id](https://www.w3.org/TR/trace-context-1/#parent-id)
@@ -13,7 +27,7 @@ public struct SpanID: Sendable {
     ///
     /// - Parameter bytes: The 8 bytes making up the span ID.
     public init(bytes: Bytes) {
-        self._bytes = bytes
+        _bytes = bytes
     }
 
     /// Create a random span ID using the given random number generator.
@@ -43,13 +57,13 @@ public struct SpanID: Sendable {
 extension SpanID: Equatable {
     public static func == (lhs: Self, rhs: Self) -> Bool {
         lhs._bytes.0 == rhs._bytes.0
-        && lhs._bytes.1 == rhs._bytes.1
-        && lhs._bytes.2 == rhs._bytes.2
-        && lhs._bytes.3 == rhs._bytes.3
-        && lhs._bytes.4 == rhs._bytes.4
-        && lhs._bytes.5 == rhs._bytes.5
-        && lhs._bytes.6 == rhs._bytes.6
-        && lhs._bytes.7 == rhs._bytes.7
+            && lhs._bytes.1 == rhs._bytes.1
+            && lhs._bytes.2 == rhs._bytes.2
+            && lhs._bytes.3 == rhs._bytes.3
+            && lhs._bytes.4 == rhs._bytes.4
+            && lhs._bytes.5 == rhs._bytes.5
+            && lhs._bytes.6 == rhs._bytes.6
+            && lhs._bytes.7 == rhs._bytes.7
     }
 }
 

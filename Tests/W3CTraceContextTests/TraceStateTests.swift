@@ -1,3 +1,17 @@
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the Swift W3C TraceContext open source project
+//
+// Copyright (c) 2024 Moritz Lang and the Swift W3C TraceContext project
+// authors
+// Licensed under Apache License v2.0
+//
+// See LICENSE.txt for license information
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//===----------------------------------------------------------------------===//
+
 import W3CTraceContext
 import XCTest
 
@@ -25,9 +39,12 @@ final class TraceStateTests: XCTestCase {
         let value = "42"
         traceState[vendor] = value
 
-        XCTAssertEqual(Array(traceState), [
-            TraceState.Element(vendor: vendor, value: value),
-        ])
+        XCTAssertEqual(
+            Array(traceState),
+            [
+                TraceState.Element(vendor: vendor, value: value),
+            ]
+        )
 
         XCTAssertEqual(traceState[vendor], value)
     }
@@ -50,10 +67,13 @@ final class TraceStateTests: XCTestCase {
         let vendor2 = TraceState.Vendor.simple("system-2")
         traceState[vendor2] = "42"
 
-        XCTAssertEqual(Array(traceState), [
-            TraceState.Element(vendor: vendor2, value: "42"),
-            TraceState.Element(vendor: vendor1, value: "42"),
-        ])
+        XCTAssertEqual(
+            Array(traceState),
+            [
+                TraceState.Element(vendor: vendor2, value: "42"),
+                TraceState.Element(vendor: vendor1, value: "42"),
+            ]
+        )
     }
 
     func test_subscript_updatingValueForExistingVendor_movesUpdatedEntryToTheFront() {
@@ -65,10 +85,13 @@ final class TraceStateTests: XCTestCase {
         traceState[vendor2] = "42"
         traceState[vendor1] = "84"
 
-        XCTAssertEqual(Array(traceState), [
-            TraceState.Element(vendor: vendor1, value: "84"),
-            TraceState.Element(vendor: vendor2, value: "42"),
-        ])
+        XCTAssertEqual(
+            Array(traceState),
+            [
+                TraceState.Element(vendor: vendor1, value: "84"),
+                TraceState.Element(vendor: vendor2, value: "42"),
+            ]
+        )
     }
 
     func test_subscript_withNilValue_withExistingEntryForVendor_removesPreviousEntry() {
@@ -123,9 +146,12 @@ final class TraceStateTests: XCTestCase {
 
         let traceState = try TraceState(decoding: headerValue)
 
-        XCTAssertEqual(Array(traceState), [
-            TraceState.Element(vendor: .simple("vendor"), value: "value"),
-        ])
+        XCTAssertEqual(
+            Array(traceState),
+            [
+                TraceState.Element(vendor: .simple("vendor"), value: "value"),
+            ]
+        )
     }
 
     func test_initDecodingHeaderValue_withMultiTenantVendor() throws {
@@ -133,9 +159,12 @@ final class TraceStateTests: XCTestCase {
 
         let traceState = try TraceState(decoding: headerValue)
 
-        XCTAssertEqual(Array(traceState), [
-            TraceState.Element(vendor: .tenant("tenant", in: "system"), value: "value"),
-        ])
+        XCTAssertEqual(
+            Array(traceState),
+            [
+                TraceState.Element(vendor: .tenant("tenant", in: "system"), value: "value"),
+            ]
+        )
     }
 
     func test_initDecodingHeaderValue_withMultipleEntries() throws {
@@ -143,10 +172,13 @@ final class TraceStateTests: XCTestCase {
 
         let traceState = try TraceState(decoding: headerValue)
 
-        XCTAssertEqual(Array(traceState), [
-            TraceState.Element(vendor: .tenant("tenant", in: "system"), value: "value-1"),
-            TraceState.Element(vendor: .simple("vendor"), value: "value-2"),
-        ])
+        XCTAssertEqual(
+            Array(traceState),
+            [
+                TraceState.Element(vendor: .tenant("tenant", in: "system"), value: "value-1"),
+                TraceState.Element(vendor: .simple("vendor"), value: "value-2"),
+            ]
+        )
     }
 
     func test_initDecodingHeaderValue_withEmptyValue() throws {
@@ -154,10 +186,13 @@ final class TraceStateTests: XCTestCase {
 
         let traceState = try TraceState(decoding: headerValue)
 
-        XCTAssertEqual(Array(traceState), [
-            TraceState.Element(vendor: .simple("vendor-1"), value: ""),
-            TraceState.Element(vendor: .simple("vendor-2"), value: "value"),
-        ])
+        XCTAssertEqual(
+            Array(traceState),
+            [
+                TraceState.Element(vendor: .simple("vendor-1"), value: ""),
+                TraceState.Element(vendor: .simple("vendor-2"), value: "value"),
+            ]
+        )
     }
 
     func test_initDecodingHeaderValue_withSpacesBetweenDelimiters() throws {
@@ -165,10 +200,13 @@ final class TraceStateTests: XCTestCase {
 
         let traceState = try TraceState(decoding: headerValue)
 
-        XCTAssertEqual(Array(traceState), [
-            TraceState.Element(vendor: .simple("vendor-1"), value: "foo   "),
-            TraceState.Element(vendor: .simple("vendor-2"), value: "bar"),
-        ])
+        XCTAssertEqual(
+            Array(traceState),
+            [
+                TraceState.Element(vendor: .simple("vendor-1"), value: "foo   "),
+                TraceState.Element(vendor: .simple("vendor-2"), value: "bar"),
+            ]
+        )
     }
 
     func test_initDecodingHeaderValue_withInvalidCharacterInVendorPart_throwsDecodingError() throws {
@@ -265,7 +303,9 @@ final class TraceStateTests: XCTestCase {
             XCTFail(#"Expected to catch decoding error, got trace state: "\#(traceState)"."#)
         } catch let error as TraceStateDecodingError {
             let lowerBound = headerValue.startIndex
-            let upperBound = headerValue.index(headerValue.startIndex, offsetBy: maximumAllowedLength)
+            let upperBound = headerValue.index(
+                headerValue.startIndex, offsetBy: maximumAllowedLength
+            )
             let range = lowerBound ... upperBound
             XCTAssertEqual(error.reason, .simpleVendorTooLong(range))
             XCTAssertEqual(
@@ -291,7 +331,10 @@ final class TraceStateTests: XCTestCase {
             XCTAssertEqual(
                 error.reason,
                 .multiTenantVendorTenantTooLong(
-                    headerValue.startIndex ... headerValue.index(headerValue.startIndex, offsetBy: maximumAllowedLength)
+                    headerValue
+                        .startIndex ... headerValue.index(
+                            headerValue.startIndex, offsetBy: maximumAllowedLength
+                        )
                 )
             )
             XCTAssertEqual(

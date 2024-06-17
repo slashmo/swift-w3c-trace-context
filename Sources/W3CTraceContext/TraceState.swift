@@ -1,3 +1,17 @@
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the Swift W3C TraceContext open source project
+//
+// Copyright (c) 2024 Moritz Lang and the Swift W3C TraceContext project
+// authors
+// Licensed under Apache License v2.0
+//
+// See LICENSE.txt for license information
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//===----------------------------------------------------------------------===//
+
 import OrderedCollections
 
 /// Vendor-specific string values to be propagated alongside a distributed tracing span.
@@ -33,7 +47,7 @@ public struct TraceState: Sendable {
 
     /// Create an empty ``TraceState``.
     public init() {
-        self._entries = [:]
+        _entries = [:]
     }
 
     /// Create a ``TraceState`` from a sequence of vendor/value pairs.
@@ -95,7 +109,7 @@ extension TraceState: Sequence {
         private var _iterator: OrderedDictionary<Vendor, String>.Iterator
 
         fileprivate init(_ elements: OrderedDictionary<Vendor, String>) {
-            self._iterator = elements.makeIterator()
+            _iterator = elements.makeIterator()
         }
 
         public mutating func next() -> TraceState.Element? {
@@ -153,7 +167,7 @@ extension TraceState {
                 default:
                     throw TraceStateDecodingError(reason: .malformedCharacterInVendor(index), headerValue: headerValue)
                 }
-            case let .system(tenant, system):
+            case .system(let tenant, let system):
                 switch next {
                 case "a" ... "z", "0" ... "9", "_", "-", "*", "/":
                     state = .system(tenant: tenant, system: system + next.utf8)
@@ -171,7 +185,7 @@ extension TraceState {
                 default:
                     throw TraceStateDecodingError(reason: .malformedCharacterInVendor(index), headerValue: headerValue)
                 }
-            case let .value(vendor, valuePart):
+            case .value(let vendor, let valuePart):
                 switch next {
                 case ",":
                     // discard any leading whitespace before the next vendor part

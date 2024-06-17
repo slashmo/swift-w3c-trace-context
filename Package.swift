@@ -6,16 +6,16 @@ let swiftSettings: [SwiftSetting] = [.enableExperimentalFeature("StrictConcurren
 let package = Package(
     name: "swift-w3c-trace-context",
     products: [
-        .library(name: "W3CTraceContext", targets: ["W3CTraceContext"]),
+        .library(name: "W3CTraceContext", targets: ["W3CTraceContext"])
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-collections.git", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-collections.git", from: "1.0.0")
     ],
     targets: [
         .target(
             name: "W3CTraceContext",
             dependencies: [
-                .product(name: "OrderedCollections", package: "swift-collections"),
+                .product(name: "OrderedCollections", package: "swift-collections")
             ],
             swiftSettings: swiftSettings
         ),
@@ -24,5 +24,6 @@ let package = Package(
             dependencies: [.target(name: "W3CTraceContext")],
             swiftSettings: swiftSettings
         ),
-    ]
+    ],
+    swiftLanguageVersions: [.version("6"), .v5]
 )

@@ -1,3 +1,17 @@
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the Swift W3C TraceContext open source project
+//
+// Copyright (c) 2024 Moritz Lang and the Swift W3C TraceContext project
+// authors
+// Licensed under Apache License v2.0
+//
+// See LICENSE.txt for license information
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//===----------------------------------------------------------------------===//
+
 /// Uniquely identifies a distributed trace using a 16-byte array.
 ///
 /// [W3C TraceContext: trace-id](https://www.w3.org/TR/trace-context-1/#trace-id)
@@ -13,7 +27,7 @@ public struct TraceID: Sendable {
     ///
     /// - Parameter bytes: The eight bytes making up the span ID.
     public init(bytes: Bytes) {
-        self._bytes = bytes
+        _bytes = bytes
     }
 
     /// Create a random trace ID using the given random number generator.
@@ -47,21 +61,21 @@ public struct TraceID: Sendable {
 extension TraceID: Equatable {
     public static func == (lhs: Self, rhs: Self) -> Bool {
         lhs._bytes.0 == rhs._bytes.0
-        && lhs._bytes.1 == rhs._bytes.1
-        && lhs._bytes.2 == rhs._bytes.2
-        && lhs._bytes.3 == rhs._bytes.3
-        && lhs._bytes.4 == rhs._bytes.4
-        && lhs._bytes.5 == rhs._bytes.5
-        && lhs._bytes.6 == rhs._bytes.6
-        && lhs._bytes.7 == rhs._bytes.7
-        && lhs._bytes.8 == rhs._bytes.8
-        && lhs._bytes.9 == rhs._bytes.9
-        && lhs._bytes.10 == rhs._bytes.10
-        && lhs._bytes.11 == rhs._bytes.11
-        && lhs._bytes.12 == rhs._bytes.12
-        && lhs._bytes.13 == rhs._bytes.13
-        && lhs._bytes.14 == rhs._bytes.14
-        && lhs._bytes.15 == rhs._bytes.15
+            && lhs._bytes.1 == rhs._bytes.1
+            && lhs._bytes.2 == rhs._bytes.2
+            && lhs._bytes.3 == rhs._bytes.3
+            && lhs._bytes.4 == rhs._bytes.4
+            && lhs._bytes.5 == rhs._bytes.5
+            && lhs._bytes.6 == rhs._bytes.6
+            && lhs._bytes.7 == rhs._bytes.7
+            && lhs._bytes.8 == rhs._bytes.8
+            && lhs._bytes.9 == rhs._bytes.9
+            && lhs._bytes.10 == rhs._bytes.10
+            && lhs._bytes.11 == rhs._bytes.11
+            && lhs._bytes.12 == rhs._bytes.12
+            && lhs._bytes.13 == rhs._bytes.13
+            && lhs._bytes.14 == rhs._bytes.14
+            && lhs._bytes.15 == rhs._bytes.15
     }
 }
 

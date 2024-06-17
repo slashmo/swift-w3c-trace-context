@@ -1,0 +1,69 @@
+name: "CI"
+on: [push, pull_request]
+jobs:
+  soundness:
+    name: Soundness Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.6
+
+      - name: Bootstrap Mint
+        uses: irgaly/setup-mint@v1
+
+      - name: Run soundness
+        run: |
+          scripts/soundness.sh
+          exit $(git status --porcelain | wc -l)
+
+  unit-test:
+    name: Unit Test
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        swift: [5.9, latest]
+
+    steps:
+      - name: Install Swift
+        uses: vapor/swiftly-action@v0.1
+        with:
+          toolchain: ${{ matrix.swift }}
+        env:
+          SWIFTLY_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout
+        uses: actions/checkout@v4.1.6
+
+      - name: Cache Swift PM
+        uses: actions/cache@v4.0.2
+        with:
+          path: .build
+          key: ${{ runner.os }}-${{ matrix.swift }}-ci-spm-${{ hashFiles('Package.swift') }}
+          restore-keys: ${{ runner.os }}-${{ matrix.swift }}-ci-spm-
+
+      - name: Resolve Swift dependencies
+        run: swift package resolve
+
+      - name: Run Unit Tests
+        run: swift test --parallel --enable-code-coverage
+
+      - name: Merge code coverage
+        if: matrix.swift == 'latest'
+        run: |
+          llvm-cov export -format "lcov" \
+            .build/debug/swift-w3c-trace-contextPackageTests.xctest \
+            -ignore-filename-regex="\/Tests\/" \
+            -ignore-filename-regex="\/.build\/" \
+            -instr-profile=./.build/debug/codecov/default.profdata \
+          > info.lcov
+
+      - name: Upload code coverage report to Codecov
+        if: matrix.swift == 'latest'
+        uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          files: ./info.lcov

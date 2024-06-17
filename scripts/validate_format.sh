@@ -1,9 +1,25 @@
 #!/bin/bash
 ##===----------------------------------------------------------------------===##
 ##
-## This source file is part of the Swift W3C Trace Context open source project
+## This source file is part of the Swift W3C TraceContext open source project
 ##
-## Copyright (c) 2020 Moritz Lang and the Swift W3C Trace Context project authors
+## Copyright (c) 2024 Moritz Lang and the Swift W3C TraceContext project
+## authors
+## Licensed under Apache License v2.0
+##
+## See LICENSE.txt for license information
+##
+## SPDX-License-Identifier: Apache-2.0
+##
+##===----------------------------------------------------------------------===##
+
+#!/bin/bash
+##===----------------------------------------------------------------------===##
+##
+## This source file is part of the Swift Distributed Tracing open source project
+##
+## Copyright (c) 2020-2021 Apple Inc. and the Swift Distributed Tracing project
+## authors
 ## Licensed under Apache License v2.0
 ##
 ## See LICENSE.txt for license information
@@ -14,16 +30,19 @@
 
 set -u
 
-# verify that swiftformat is on the PATH
-command -v swiftformat >/dev/null 2>&1 || { echo >&2 "'swiftformat' could not be found. Please ensure it is installed and on the PATH."; exit 1; }
+# verify that mint is on the PATH
+command -v mint >/dev/null 2>&1 || { echo >&2 "'mint' could not be found. Please ensure it is installed and on the PATH."; exit 1; }
 
 printf "=> Checking format\n"
 FIRST_OUT="$(git status --porcelain)"
 # swiftformat does not scale so we loop ourselves
 shopt -u dotglob
-find . -type d \( -name .build \) -prune -false -o -name "*.swift" | while IFS= read -r d; do
+find Sources/* Tests/* -type d | while IFS= read -r d; do
   printf "   * checking $d... "
-  out=$(swiftformat $d 2>&1)
+  out=$(mint run swiftformat -quiet $d 2>&1)
+  if [[ $out == *$'\n' ]]; then
+    echo $out
+  fi
   SECOND_OUT="$(git status --porcelain)"
   if [[ "$out" == *"error"*] && ["$out" != "*No eligible files" ]]; then
     printf "\033[0;31merror!\033[0m\n"
