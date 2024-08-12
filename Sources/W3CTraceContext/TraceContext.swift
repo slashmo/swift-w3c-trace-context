@@ -69,7 +69,7 @@ public struct TraceContext: Sendable {
 
         // trace ID
 
-        var traceIDBytes = TraceID.Bytes(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        var traceIDBytes = TraceID.Bytes.Storage(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
         withUnsafeMutableBytes(of: &traceIDBytes) { ptr in
             Hex.convert(traceParent[3 ..< 35], toBytes: ptr)
         }
@@ -130,7 +130,7 @@ public struct TraceContext: Sendable {
         }
 
         self = TraceContext(
-            traceID: TraceID(bytes: traceIDBytes),
+            traceID: TraceID(bytes: .init(traceIDBytes)),
             spanID: SpanID(bytes: spanIDBytes),
             flags: flags,
             state: state
