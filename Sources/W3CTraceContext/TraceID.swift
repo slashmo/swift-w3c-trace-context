@@ -16,26 +16,26 @@
 ///
 /// [W3C TraceContext: trace-id](https://www.w3.org/TR/trace-context-1/#trace-id)
 public struct TraceID: Sendable {
-    /// The 16-bytes of the trace ID.
-    public let bytes: Bytes
+    /// The 16 bytes of the trace ID.
+    public let rawBytes: Bytes
 
     /// A 16-byte array representation of the trace ID.
-    public var bytesArray: [UInt8] {
-        withUnsafeBytes(of: bytes, Array.init)
+    public var bytes: [UInt8] {
+        withUnsafeBytes(of: rawBytes, Array.init)
     }
 
     /// Create a trace ID from 16 bytes.
     ///
     /// - Parameter bytes: The 16 bytes making up the trace ID.
     public init(bytes: Bytes) {
-        self.bytes = bytes
+        self.rawBytes = bytes
     }
 
     /// Create a trace ID from 16 bytes.
     ///
     /// - Parameter bytes: The 16 bytes making up the trace ID.
     public init(bytes: Bytes.Storage) {
-        self.bytes = .init(bytes)
+        self.rawBytes = .init(bytes)
     }
 
     /// Create a random trace ID using the given random number generator.
@@ -67,10 +67,33 @@ public struct TraceID: Sendable {
             UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8
         )
 
-        /* private */ public let _storage: Storage
+        @usableFromInline
+        /* private */ let _storage: Storage
 
         public init(_ bytes: Storage) {
             self._storage = bytes
+        }
+
+        public init(
+            _ one: UInt8,
+            _ two: UInt8,
+            _ three: UInt8,
+            _ four: UInt8,
+            _ five: UInt8,
+            _ six: UInt8,
+            _ seven: UInt8,
+            _ eight: UInt8,
+            _ nine: UInt8,
+            _ ten: UInt8,
+            _ eleven: UInt8,
+            _ twelve: UInt8,
+            _ thirteen: UInt8,
+            _ fourteen: UInt8,
+            _ fifteen: UInt8,
+            _ sixteen: UInt8
+        ) {
+            self._storage = (one, two, three, four, five, six, seven, eight,
+                             nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen)
         }
 
         public var array: [UInt8] {
@@ -133,7 +156,7 @@ extension TraceID.Bytes: Hashable {
 }
 
 extension TraceID: Identifiable {
-    public var id: Bytes { bytes }
+    public var id: Bytes { rawBytes }
 }
 
 extension TraceID.Bytes: CustomStringConvertible {
@@ -142,7 +165,7 @@ extension TraceID.Bytes: CustomStringConvertible {
         String(decoding: hexBytes, as: UTF8.self)
     }
 
-    /// A 32 character UTF-8 hex byte array representation of the bytes ID.
+    /// A 32 character UTF-8 hex byte array representation of the bytes.
     public var hexBytes: [UInt8] {
         var asciiBytes: (UInt64, UInt64, UInt64, UInt64) = (0, 0, 0, 0)
         return withUnsafeMutableBytes(of: &asciiBytes) { ptr in
@@ -186,11 +209,11 @@ extension TraceID.Bytes: CustomStringConvertible {
 extension TraceID: CustomStringConvertible {
     /// A 32 character hex string representation of the span ID.
     public var description: String {
-        String(decoding: self.bytes.hexBytes, as: UTF8.self)
+        String(decoding: self.rawBytes.hexBytes, as: UTF8.self)
     }
 
     /// A 32 character UTF-8 hex byte array representation of the span ID.
     public var hexBytes: [UInt8] {
-        self.bytes.hexBytes
+        self.rawBytes.hexBytes
     }
 }
