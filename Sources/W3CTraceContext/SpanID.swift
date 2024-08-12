@@ -16,18 +16,21 @@
 ///
 /// [W3C TraceContext: parent-id](https://www.w3.org/TR/trace-context-1/#parent-id)
 public struct SpanID: Sendable {
-    private let _bytes: Bytes
-
-    /// An 8-byte array representation of the span ID.
-    public var bytes: [UInt8] {
-        withUnsafeBytes(of: _bytes, Array.init)
-    }
+    private let bytes: Bytes
 
     /// Create a span ID from 8 bytes.
     ///
     /// - Parameter bytes: The 8 bytes making up the span ID.
     public init(bytes: Bytes) {
-        _bytes = bytes
+        self.bytes = bytes
+    }
+
+    public init(bytes: (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8)) {
+        self.bytes = Bytes(bytes)
+    }
+
+    func withUnsafeBytes<Result>(_ body: (UnsafeRawBufferPointer) throws -> Result) rethrows -> Result {
+        try Swift.withUnsafeBytes(of: self.bytes._bytes, body)
     }
 
     /// Create a random span ID using the given random number generator.
@@ -35,7 +38,7 @@ public struct SpanID: Sendable {
     /// - Parameter randomNumberGenerator: The random number generator used to create random bytes for the span ID.
     /// - Returns: A random span ID.
     public static func random(using randomNumberGenerator: inout some RandomNumberGenerator) -> SpanID {
-        var bytes: SpanID.Bytes = (0, 0, 0, 0, 0, 0, 0, 0)
+        var bytes: SpanID.Bytes = .init(0, 0, 0, 0, 0, 0, 0, 0)
         withUnsafeMutableBytes(of: &bytes) { ptr in
             ptr.storeBytes(of: randomNumberGenerator.next().bigEndian, as: UInt64.self)
         }
@@ -51,44 +54,63 @@ public struct SpanID: Sendable {
     }
 
     /// An 8-byte array.
-    public typealias Bytes = (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8)
+    public struct Bytes: Equatable, Hashable, Sendable {
+        
+        let _bytes: (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8)
+
+        public init(_ bytes: (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8)) {
+            _bytes = bytes
+        }
+
+        public init(_ one: UInt8, _ two: UInt8, _ three: UInt8, _ four: UInt8, _ five: UInt8, _ six: UInt8, _ seven: UInt8, _ eight: UInt8) {
+            _bytes = (one, two, three, four, five, six, seven, eight)
+        }
+
+        public static func == (lhs: Self, rhs: Self) -> Bool {
+            lhs._bytes.0 == rhs._bytes.0
+                && lhs._bytes.1 == rhs._bytes.1
+                && lhs._bytes.2 == rhs._bytes.2
+                && lhs._bytes.3 == rhs._bytes.3
+                && lhs._bytes.4 == rhs._bytes.4
+                && lhs._bytes.5 == rhs._bytes.5
+                && lhs._bytes.6 == rhs._bytes.6
+                && lhs._bytes.7 == rhs._bytes.7
+        }
+
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(_bytes.0)
+            hasher.combine(_bytes.1)
+            hasher.combine(_bytes.2)
+            hasher.combine(_bytes.3)
+            hasher.combine(_bytes.4)
+            hasher.combine(_bytes.5)
+            hasher.combine(_bytes.6)
+            hasher.combine(_bytes.7)
+        }
+    } 
 }
 
 extension SpanID: Equatable {
-    public static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs._bytes.0 == rhs._bytes.0
-            && lhs._bytes.1 == rhs._bytes.1
-            && lhs._bytes.2 == rhs._bytes.2
-            && lhs._bytes.3 == rhs._bytes.3
-            && lhs._bytes.4 == rhs._bytes.4
-            && lhs._bytes.5 == rhs._bytes.5
-            && lhs._bytes.6 == rhs._bytes.6
-            && lhs._bytes.7 == rhs._bytes.7
-    }
+    
 }
 
 extension SpanID: Hashable {
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(_bytes.0)
-        hasher.combine(_bytes.1)
-        hasher.combine(_bytes.2)
-        hasher.combine(_bytes.3)
-        hasher.combine(_bytes.4)
-        hasher.combine(_bytes.5)
-        hasher.combine(_bytes.6)
-        hasher.combine(_bytes.7)
-    }
+    
 }
 
 extension SpanID: Identifiable {
-    public var id: [UInt8] { bytes }
+    public var id: Bytes { bytes }
 }
 
 extension SpanID: CustomStringConvertible {
     /// A 16 character hex string representation of the span ID.
     public var description: String {
-        String(decoding: hexBytes, as: UTF8.self)
+        String(decoding: self.bytes.hexBytes, as: UTF8.self)
     }
+
+}
+
+extension SpanID.Bytes {
 
     /// A 16 character UTF-8 hex byte array representation of the span ID.
     public var hexBytes: [UInt8] {
