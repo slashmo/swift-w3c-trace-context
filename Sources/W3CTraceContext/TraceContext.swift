@@ -69,26 +69,26 @@ public struct TraceContext: Sendable {
 
         // trace ID
 
-        var traceIDBytes = TraceID.Bytes.Storage(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        var traceIDBytes = TraceID.Bytes(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
         withUnsafeMutableBytes(of: &traceIDBytes) { ptr in
             Hex.convert(traceParent[3 ..< 35], toBytes: ptr)
         }
-        if traceIDBytes.0 == 0,
-           traceIDBytes.1 == 0,
-           traceIDBytes.2 == 0,
-           traceIDBytes.3 == 0,
-           traceIDBytes.4 == 0,
-           traceIDBytes.5 == 0,
-           traceIDBytes.6 == 0,
-           traceIDBytes.7 == 0,
-           traceIDBytes.8 == 0,
-           traceIDBytes.9 == 0,
-           traceIDBytes.10 == 0,
-           traceIDBytes.11 == 0,
-           traceIDBytes.12 == 0,
-           traceIDBytes.13 == 0,
-           traceIDBytes.14 == 0,
-           traceIDBytes.15 == 0
+        if traceIDBytes._bytes.0 == 0,
+           traceIDBytes._bytes.1 == 0,
+           traceIDBytes._bytes.2 == 0,
+           traceIDBytes._bytes.3 == 0,
+           traceIDBytes._bytes.4 == 0,
+           traceIDBytes._bytes.5 == 0,
+           traceIDBytes._bytes.6 == 0,
+           traceIDBytes._bytes.7 == 0,
+           traceIDBytes._bytes.8 == 0,
+           traceIDBytes._bytes.9 == 0,
+           traceIDBytes._bytes.10 == 0,
+           traceIDBytes._bytes.11 == 0,
+           traceIDBytes._bytes.12 == 0,
+           traceIDBytes._bytes.13 == 0,
+           traceIDBytes._bytes.14 == 0,
+           traceIDBytes._bytes.15 == 0
         {
             throw TraceParentDecodingError(
                 .invalidTraceID(String(decoding: traceParent[3 ..< 35], as: UTF8.self))
@@ -101,14 +101,14 @@ public struct TraceContext: Sendable {
         withUnsafeMutableBytes(of: &spanIDBytes) { ptr in
             Hex.convert(traceParent[36 ..< 52], toBytes: ptr)
         }
-        if spanIDBytes.0 == 0,
-           spanIDBytes.1 == 0,
-           spanIDBytes.2 == 0,
-           spanIDBytes.3 == 0,
-           spanIDBytes.4 == 0,
-           spanIDBytes.5 == 0,
-           spanIDBytes.6 == 0,
-           spanIDBytes.7 == 0
+        if spanIDBytes._bytes.0 == 0,
+           spanIDBytes._bytes.1 == 0,
+           spanIDBytes._bytes.2 == 0,
+           spanIDBytes._bytes.3 == 0,
+           spanIDBytes._bytes.4 == 0,
+           spanIDBytes._bytes.5 == 0,
+           spanIDBytes._bytes.6 == 0,
+           spanIDBytes._bytes.7 == 0
         {
             throw TraceParentDecodingError(
                 .invalidSpanID(String(decoding: traceParent[36 ..< 52], as: UTF8.self))
@@ -130,7 +130,7 @@ public struct TraceContext: Sendable {
         }
 
         self = TraceContext(
-            traceID: TraceID(bytes: .init(traceIDBytes)),
+            traceID: TraceID(bytes: traceIDBytes),
             spanID: SpanID(bytes: spanIDBytes),
             flags: flags,
             state: state

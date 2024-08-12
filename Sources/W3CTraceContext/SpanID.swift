@@ -16,7 +16,7 @@
 ///
 /// [W3C TraceContext: parent-id](https://www.w3.org/TR/trace-context-1/#parent-id)
 public struct SpanID: Sendable {
-    private let bytes: Bytes
+    public let bytes: Bytes
 
     /// Create a span ID from 8 bytes.
     ///
@@ -29,7 +29,8 @@ public struct SpanID: Sendable {
         self.bytes = Bytes(bytes)
     }
 
-    func withUnsafeBytes<Result>(_ body: (UnsafeRawBufferPointer) throws -> Result) rethrows -> Result {
+    @inlinable
+    public func withUnsafeBytes<Result>(_ body: (UnsafeRawBufferPointer) throws -> Result) rethrows -> Result {
         try Swift.withUnsafeBytes(of: self.bytes._bytes, body)
     }
 
@@ -55,7 +56,7 @@ public struct SpanID: Sendable {
 
     /// An 8-byte array.
     public struct Bytes: Equatable, Hashable, Sendable {
-        
+        @usableFromInline
         let _bytes: (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8)
 
         public init(_ bytes: (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8)) {

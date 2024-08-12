@@ -37,6 +37,7 @@ public struct TraceID: Sendable {
     }
 
     /// Access the bytes of the trace ID in an unsafe manner.
+    @inlinable
     public func withUnsafeBytes<Result>(_ body: (UnsafeRawBufferPointer) throws -> Result) rethrows -> Result {
         try Swift.withUnsafeBytes(of: self.bytes._bytes, body)
     }
@@ -64,7 +65,7 @@ public struct TraceID: Sendable {
 
     /// A 16-byte array.
     public struct Bytes: Sendable {
-        let _bytes: (
+        @usableFromInline let _bytes: (
             UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
             UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8
         )
