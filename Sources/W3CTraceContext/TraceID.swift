@@ -17,25 +17,20 @@
 /// [W3C TraceContext: trace-id](https://www.w3.org/TR/trace-context-1/#trace-id)
 public struct TraceID: Sendable {
     /// The 16 bytes of the trace ID.
-    public let rawBytes: Bytes
-
-    /// A 16-byte array representation of the trace ID.
-    public var bytes: [UInt8] {
-        withUnsafeBytes(of: rawBytes, Array.init)
-    }
+    public let bytes: Bytes
 
     /// Create a trace ID from 16 bytes.
     ///
     /// - Parameter bytes: The 16 bytes making up the trace ID.
     public init(bytes: Bytes) {
-        self.rawBytes = bytes
+        self.bytes = bytes
     }
 
     /// Create a trace ID from 16 bytes.
     ///
     /// - Parameter bytes: The 16 bytes making up the trace ID.
     public init(bytes: Bytes.Storage) {
-        self.rawBytes = .init(bytes)
+        self.bytes = .init(bytes)
     }
 
     /// Create a random trace ID using the given random number generator.
@@ -156,7 +151,7 @@ extension TraceID.Bytes: Hashable {
 }
 
 extension TraceID: Identifiable {
-    public var id: Bytes { rawBytes }
+    public var id: Bytes { bytes }
 }
 
 extension TraceID.Bytes: CustomStringConvertible {
@@ -209,11 +204,11 @@ extension TraceID.Bytes: CustomStringConvertible {
 extension TraceID: CustomStringConvertible {
     /// A 32 character hex string representation of the span ID.
     public var description: String {
-        String(decoding: self.rawBytes.hexBytes, as: UTF8.self)
+        String(decoding: self.bytes.hexBytes, as: UTF8.self)
     }
 
     /// A 32 character UTF-8 hex byte array representation of the span ID.
     public var hexBytes: [UInt8] {
-        self.rawBytes.hexBytes
+        self.bytes.hexBytes
     }
 }
