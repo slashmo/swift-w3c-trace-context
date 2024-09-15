@@ -30,16 +30,16 @@ public struct TraceID: Sendable {
     ///
     /// - Parameter bytes: The 16 bytes making up the trace ID.
     public init(bytes: (
-            UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
-            UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8
-        )) {
+        UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
+        UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8
+    )) {
         self.bytes = .init(bytes)
     }
 
     /// Access the bytes of the trace ID in an unsafe manner.
     @inlinable
     public func withUnsafeBytes<Result>(_ body: (UnsafeRawBufferPointer) throws -> Result) rethrows -> Result {
-        try Swift.withUnsafeBytes(of: self.bytes._bytes, body)
+        try Swift.withUnsafeBytes(of: bytes._bytes, body)
     }
 
     /// Create a random trace ID using the given random number generator.
@@ -74,7 +74,7 @@ public struct TraceID: Sendable {
             UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
             UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8
         )) {
-            self._bytes = bytes
+            _bytes = bytes
         }
 
         public init(
@@ -95,15 +95,30 @@ public struct TraceID: Sendable {
             _ fifteen: UInt8,
             _ sixteen: UInt8
         ) {
-            self._bytes = (one, two, three, four, five, six, seven, eight,
-                             nine, ten, eleven, twelve, thirteen, fourteen, fifteen, sixteen)
+            _bytes = (
+                one,
+                two,
+                three,
+                four,
+                five,
+                six,
+                seven,
+                eight,
+                nine,
+                ten,
+                eleven,
+                twelve,
+                thirteen,
+                fourteen,
+                fifteen,
+                sixteen
+            )
         }
-
     }
 }
 
-extension TraceID : Equatable {}
-extension TraceID : Hashable {}
+extension TraceID: Equatable {}
+extension TraceID: Hashable {}
 
 extension TraceID.Bytes: Equatable {
     public static func == (lhs: Self, rhs: Self) -> Bool {
@@ -201,11 +216,11 @@ extension TraceID.Bytes: CustomStringConvertible {
 extension TraceID: CustomStringConvertible {
     /// A 32 character hex string representation of the span ID.
     public var description: String {
-        String(decoding: self.bytes.hexBytes, as: UTF8.self)
+        String(decoding: bytes.hexBytes, as: UTF8.self)
     }
 
     /// A 32 character UTF-8 hex byte array representation of the span ID.
     public var hexBytes: [UInt8] {
-        self.bytes.hexBytes
+        bytes.hexBytes
     }
 }

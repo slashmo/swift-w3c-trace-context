@@ -31,7 +31,7 @@ public struct SpanID: Sendable {
 
     @inlinable
     public func withUnsafeBytes<Result>(_ body: (UnsafeRawBufferPointer) throws -> Result) rethrows -> Result {
-        try Swift.withUnsafeBytes(of: self.bytes._bytes, body)
+        try Swift.withUnsafeBytes(of: bytes._bytes, body)
     }
 
     /// Create a random span ID using the given random number generator.
@@ -88,16 +88,12 @@ public struct SpanID: Sendable {
             hasher.combine(_bytes.6)
             hasher.combine(_bytes.7)
         }
-    } 
+    }
 }
 
-extension SpanID: Equatable {
-    
-}
+extension SpanID: Equatable {}
 
-extension SpanID: Hashable {
-    
-}
+extension SpanID: Hashable {}
 
 extension SpanID: Identifiable {
     public var id: Bytes { bytes }
@@ -106,13 +102,11 @@ extension SpanID: Identifiable {
 extension SpanID: CustomStringConvertible {
     /// A 16 character hex string representation of the span ID.
     public var description: String {
-        String(decoding: self.bytes.hexBytes, as: UTF8.self)
+        String(decoding: bytes.hexBytes, as: UTF8.self)
     }
-
 }
 
 extension SpanID.Bytes {
-
     /// A 16 character UTF-8 hex byte array representation of the span ID.
     public var hexBytes: [UInt8] {
         var asciiBytes: (UInt64, UInt64) = (0, 0)
