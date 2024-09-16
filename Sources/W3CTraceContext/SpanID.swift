@@ -24,7 +24,7 @@ public struct SpanID: Sendable {
     /// - Parameter body: A closure receiving an `UnsafeRawBufferPointer` to the trace ID's underlying bytes.
     @inlinable
     public func withUnsafeBytes<T>(_ body: (UnsafeRawBufferPointer) throws -> T) rethrows -> T {
-        try Swift.withUnsafeBytes(of: self._bytes, body)
+        try Swift.withUnsafeBytes(of: _bytes, body)
     }
 
     /// Create a span ID from 8 bytes.
@@ -63,15 +63,15 @@ extension SpanID: Collection {
 
     public subscript(position: Int) -> UInt8 {
         switch position {
-            case 0: return _bytes.0
-            case 1: return _bytes.1
-            case 2: return _bytes.2
-            case 3: return _bytes.3
-            case 4: return _bytes.4
-            case 5: return _bytes.5
-            case 6: return _bytes.6
-            case 7: return _bytes.7
-            default: fatalError("Index out of bounds")
+        case 0: _bytes.0
+        case 1: _bytes.1
+        case 2: _bytes.2
+        case 3: _bytes.3
+        case 4: _bytes.4
+        case 5: _bytes.5
+        case 6: _bytes.6
+        case 7: _bytes.7
+        default: fatalError("Index out of bounds")
         }
     }
 
@@ -79,7 +79,7 @@ extension SpanID: Collection {
     public var endIndex: Int { 8 }
 
     public func index(after i: Int) -> Int {
-        precondition(i < self.endIndex, "Can't advance beyond endIndex")
+        precondition(i < endIndex, "Can't advance beyond endIndex")
         return i + 1
     }
 }

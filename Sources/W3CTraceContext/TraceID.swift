@@ -17,14 +17,14 @@
 /// [W3C TraceContext: trace-id](https://www.w3.org/TR/trace-context-1/#trace-id)
 public struct TraceID: Sendable {
     @usableFromInline
-    internal let _bytes: Bytes
+    let _bytes: Bytes
 
     /// Calls the given closure with a pointer to the trace ID's underlying bytes.
     ///
     /// - Parameter body: A closure receiving an `UnsafeRawBufferPointer` to the trace ID's underlying bytes.
     @inlinable
     public func withUnsafeBytes<T>(_ body: (UnsafeRawBufferPointer) throws -> T) rethrows -> T {
-        try Swift.withUnsafeBytes(of: self._bytes, body)
+        try Swift.withUnsafeBytes(of: _bytes, body)
     }
 
     /// Create a trace ID from 16 bytes.
@@ -67,23 +67,23 @@ extension TraceID: Collection {
 
     public subscript(position: Int) -> UInt8 {
         switch position {
-            case  0: return self._bytes.0
-            case  1: return self._bytes.1
-            case  2: return self._bytes.2
-            case  3: return self._bytes.3
-            case  4: return self._bytes.4
-            case  5: return self._bytes.5
-            case  6: return self._bytes.6
-            case  7: return self._bytes.7
-            case  8: return self._bytes.8
-            case  9: return self._bytes.9
-            case 10: return self._bytes.10
-            case 11: return self._bytes.11
-            case 12: return self._bytes.12
-            case 13: return self._bytes.13
-            case 14: return self._bytes.14
-            case 15: return self._bytes.15
-            default: fatalError("Index out of bounds")
+        case 0: _bytes.0
+        case 1: _bytes.1
+        case 2: _bytes.2
+        case 3: _bytes.3
+        case 4: _bytes.4
+        case 5: _bytes.5
+        case 6: _bytes.6
+        case 7: _bytes.7
+        case 8: _bytes.8
+        case 9: _bytes.9
+        case 10: _bytes.10
+        case 11: _bytes.11
+        case 12: _bytes.12
+        case 13: _bytes.13
+        case 14: _bytes.14
+        case 15: _bytes.15
+        default: fatalError("Index out of bounds")
         }
     }
 
@@ -91,7 +91,7 @@ extension TraceID: Collection {
     public var endIndex: Int { 16 }
 
     public func index(after i: Int) -> Int {
-        precondition(i < self.endIndex, "Can't advance beyond endIndex")
+        precondition(i < endIndex, "Can't advance beyond endIndex")
         return i + 1
     }
 }
