@@ -16,8 +16,13 @@
 ///
 /// [W3C TraceContext: parent-id](https://www.w3.org/TR/trace-context-1/#parent-id)
 public struct SpanID: Sendable {
-    private let _bytes: Bytes
+    @usableFromInline
+    let _bytes: Bytes
 
+    /// Calls the given closure with a pointer to the trace ID's underlying bytes.
+    ///
+    /// - Parameter body: A closure receiving an `UnsafeRawBufferPointer` to the trace ID's underlying bytes.
+    @inlinable
     public func withUnsafeBytes<T>(_ body: (UnsafeRawBufferPointer) throws -> T) rethrows -> T {
         try Swift.withUnsafeBytes(of: self._bytes, body)
     }

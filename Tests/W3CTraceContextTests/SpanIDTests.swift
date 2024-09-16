@@ -20,6 +20,7 @@ final class SpanIDTests: XCTestCase {
         let spanID = SpanID.oneToEight
 
         XCTAssertEqual(Array(spanID), [1, 2, 3, 4, 5, 6, 7, 8])
+        XCTAssertEqual(spanID.withUnsafeBytes(Array.init), [1, 2, 3, 4, 5, 6, 7, 8])
     }
 
     func test_equatableConformance() {
