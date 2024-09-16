@@ -18,9 +18,8 @@
 public struct TraceID: Sendable {
     private let _bytes: Bytes
 
-    /// A 16-byte array representation of the span ID.
-    public var bytes: [UInt8] {
-        withUnsafeBytes(of: _bytes, Array.init)
+    public func withUnsafeBytes<T>(_ body: (UnsafeRawBufferPointer) throws -> T) rethrows -> T {
+        try Swift.withUnsafeBytes(of: self._bytes, body)
     }
 
     /// Create a trace ID from 16 bytes.
@@ -56,6 +55,40 @@ public struct TraceID: Sendable {
         UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8,
         UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8
     )
+}
+
+extension TraceID: Collection {
+    public typealias Element = UInt8
+
+    public subscript(position: Int) -> UInt8 {
+        switch position {
+            case  0: return self._bytes.0
+            case  1: return self._bytes.1
+            case  2: return self._bytes.2
+            case  3: return self._bytes.3
+            case  4: return self._bytes.4
+            case  5: return self._bytes.5
+            case  6: return self._bytes.6
+            case  7: return self._bytes.7
+            case  8: return self._bytes.8
+            case  9: return self._bytes.9
+            case 10: return self._bytes.10
+            case 11: return self._bytes.11
+            case 12: return self._bytes.12
+            case 13: return self._bytes.13
+            case 14: return self._bytes.14
+            case 15: return self._bytes.15
+            default: fatalError("Index out of bounds")
+        }
+    }
+
+    public var startIndex: Int { 0 }
+    public var endIndex: Int { 16 }
+
+    public func index(after i: Int) -> Int {
+        precondition(i < self.endIndex, "Can't advance beyond endIndex")
+        return i + 1
+    }
 }
 
 extension TraceID: Equatable {
@@ -101,7 +134,7 @@ extension TraceID: Hashable {
 }
 
 extension TraceID: Identifiable {
-    public var id: [UInt8] { bytes }
+    public var id: Self { self }
 }
 
 extension TraceID: CustomStringConvertible {

@@ -18,9 +18,8 @@
 public struct SpanID: Sendable {
     private let _bytes: Bytes
 
-    /// An 8-byte array representation of the span ID.
-    public var bytes: [UInt8] {
-        withUnsafeBytes(of: _bytes, Array.init)
+    public func withUnsafeBytes<T>(_ body: (UnsafeRawBufferPointer) throws -> T) rethrows -> T {
+        try Swift.withUnsafeBytes(of: self._bytes, body)
     }
 
     /// Create a span ID from 8 bytes.
@@ -54,6 +53,32 @@ public struct SpanID: Sendable {
     public typealias Bytes = (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8)
 }
 
+extension SpanID: Collection {
+    public typealias Element = UInt8
+
+    public subscript(position: Int) -> UInt8 {
+        switch position {
+            case 0: return _bytes.0
+            case 1: return _bytes.1
+            case 2: return _bytes.2
+            case 3: return _bytes.3
+            case 4: return _bytes.4
+            case 5: return _bytes.5
+            case 6: return _bytes.6
+            case 7: return _bytes.7
+            default: fatalError("Index out of bounds")
+        }
+    }
+
+    public var startIndex: Int { 0 }
+    public var endIndex: Int { 8 }
+
+    public func index(after i: Int) -> Int {
+        precondition(i < self.endIndex, "Can't advance beyond endIndex")
+        return i + 1
+    }
+}
+
 extension SpanID: Equatable {
     public static func == (lhs: Self, rhs: Self) -> Bool {
         lhs._bytes.0 == rhs._bytes.0
@@ -81,7 +106,7 @@ extension SpanID: Hashable {
 }
 
 extension SpanID: Identifiable {
-    public var id: [UInt8] { bytes }
+    public var id: Self { self }
 }
 
 extension SpanID: CustomStringConvertible {

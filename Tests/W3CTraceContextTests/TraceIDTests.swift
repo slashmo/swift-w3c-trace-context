@@ -19,7 +19,7 @@ final class TraceIDTests: XCTestCase {
     func test_bytes_returnsSixteenByteArrayRepresentation() {
         let traceID = TraceID.oneToSixteen
 
-        XCTAssertEqual(traceID.bytes, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])
+        XCTAssertEqual(Array(traceID), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])
     }
 
     func test_equatableConformance() {
