@@ -29,7 +29,7 @@ public struct TraceID: Sendable {
 
     /// Create a trace ID from 16 bytes.
     ///
-    /// - Parameter bytes: The eight bytes making up the span ID.
+    /// - Parameter bytes: The eight bytes making up the trace ID.
     public init(bytes: Bytes) {
         _bytes = bytes
     }
@@ -143,12 +143,12 @@ extension TraceID: Identifiable {
 }
 
 extension TraceID: CustomStringConvertible {
-    /// A 32 character hex string representation of the span ID.
+    /// A 32 character hex string representation of the trace ID.
     public var description: String {
         String(decoding: hexBytes, as: UTF8.self)
     }
 
-    /// A 32 character UTF-8 hex byte array representation of the span ID.
+    /// A 32 character UTF-8 hex byte array representation of the trace ID.
     public var hexBytes: [UInt8] {
         var asciiBytes: (UInt64, UInt64, UInt64, UInt64) = (0, 0, 0, 0)
         return withUnsafeMutableBytes(of: &asciiBytes) { ptr in

@@ -19,9 +19,9 @@ public struct SpanID: Sendable {
     @usableFromInline
     let _bytes: Bytes
 
-    /// Calls the given closure with a pointer to the trace ID's underlying bytes.
+    /// Calls the given closure with a pointer to the span ID's underlying bytes.
     ///
-    /// - Parameter body: A closure receiving an `UnsafeRawBufferPointer` to the trace ID's underlying bytes.
+    /// - Parameter body: A closure receiving an `UnsafeRawBufferPointer` to the span ID's underlying bytes.
     @inlinable
     public func withUnsafeBytes<T>(_ body: (UnsafeRawBufferPointer) throws -> T) rethrows -> T {
         try Swift.withUnsafeBytes(of: _bytes, body)
