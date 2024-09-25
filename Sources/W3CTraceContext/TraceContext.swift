@@ -69,27 +69,11 @@ public struct TraceContext: Sendable {
 
         // trace ID
 
-        var traceIDBytes = TraceID.Bytes(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        var traceIDBytes = TraceID.Bytes.null
         withUnsafeMutableBytes(of: &traceIDBytes) { ptr in
             Hex.convert(traceParent[3 ..< 35], toBytes: ptr)
         }
-        if traceIDBytes._bytes.0 == 0,
-           traceIDBytes._bytes.1 == 0,
-           traceIDBytes._bytes.2 == 0,
-           traceIDBytes._bytes.3 == 0,
-           traceIDBytes._bytes.4 == 0,
-           traceIDBytes._bytes.5 == 0,
-           traceIDBytes._bytes.6 == 0,
-           traceIDBytes._bytes.7 == 0,
-           traceIDBytes._bytes.8 == 0,
-           traceIDBytes._bytes.9 == 0,
-           traceIDBytes._bytes.10 == 0,
-           traceIDBytes._bytes.11 == 0,
-           traceIDBytes._bytes.12 == 0,
-           traceIDBytes._bytes.13 == 0,
-           traceIDBytes._bytes.14 == 0,
-           traceIDBytes._bytes.15 == 0
-        {
+        if traceIDBytes == .null {
             throw TraceParentDecodingError(
                 .invalidTraceID(String(decoding: traceParent[3 ..< 35], as: UTF8.self))
             )
@@ -97,19 +81,11 @@ public struct TraceContext: Sendable {
 
         // span ID
 
-        var spanIDBytes = SpanID.Bytes(0, 0, 0, 0, 0, 0, 0, 0)
-        withUnsafeMutableBytes(of: &spanIDBytes) { ptr in
+        var spanIDBytes = SpanID.Bytes.null
+        spanIDBytes.withUnsafeMutableBytes { ptr in
             Hex.convert(traceParent[36 ..< 52], toBytes: ptr)
         }
-        if spanIDBytes._bytes.0 == 0,
-           spanIDBytes._bytes.1 == 0,
-           spanIDBytes._bytes.2 == 0,
-           spanIDBytes._bytes.3 == 0,
-           spanIDBytes._bytes.4 == 0,
-           spanIDBytes._bytes.5 == 0,
-           spanIDBytes._bytes.6 == 0,
-           spanIDBytes._bytes.7 == 0
-        {
+        if spanIDBytes == .null {
             throw TraceParentDecodingError(
                 .invalidSpanID(String(decoding: traceParent[36 ..< 52], as: UTF8.self))
             )

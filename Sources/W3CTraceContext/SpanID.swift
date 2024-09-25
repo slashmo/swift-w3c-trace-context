@@ -16,6 +16,7 @@
 ///
 /// [W3C TraceContext: parent-id](https://www.w3.org/TR/trace-context-1/#parent-id)
 public struct SpanID: Sendable {
+    /// The 8 bytes making up the span ID.
     public let bytes: Bytes
 
     /// Create a span ID from 8 bytes.
@@ -25,22 +26,21 @@ public struct SpanID: Sendable {
         self.bytes = bytes
     }
 
-    public init(bytes: (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8)) {
-        self.bytes = Bytes(bytes)
-    }
-
     @inlinable
     public func withUnsafeBytes<Result>(_ body: (UnsafeRawBufferPointer) throws -> Result) rethrows -> Result {
-        try Swift.withUnsafeBytes(of: bytes._bytes, body)
+        try bytes.withUnsafeBytes(body)
     }
+
+    /// A null span ID.
+    public static var null: SpanID { SpanID(bytes: .null) }
 
     /// Create a random span ID using the given random number generator.
     ///
     /// - Parameter randomNumberGenerator: The random number generator used to create random bytes for the span ID.
     /// - Returns: A random span ID.
     public static func random(using randomNumberGenerator: inout some RandomNumberGenerator) -> SpanID {
-        var bytes: SpanID.Bytes = .init(0, 0, 0, 0, 0, 0, 0, 0)
-        withUnsafeMutableBytes(of: &bytes) { ptr in
+        var bytes: SpanID.Bytes = .null
+        bytes.withUnsafeMutableBytes { ptr in
             ptr.storeBytes(of: randomNumberGenerator.next().bigEndian, as: UInt64.self)
         }
         return SpanID(bytes: bytes)
@@ -55,16 +55,55 @@ public struct SpanID: Sendable {
     }
 
     /// An 8-byte array.
-    public struct Bytes: Equatable, Hashable, Sendable {
+    public struct Bytes: Collection, Equatable, Hashable, Sendable {
+        public static var null: Self { SpanID.Bytes((0, 0, 0, 0, 0, 0, 0, 0)) }
+
         @usableFromInline
-        let _bytes: (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8)
+        var _bytes: (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8)
 
         public init(_ bytes: (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8)) {
             _bytes = bytes
         }
 
-        public init(_ one: UInt8, _ two: UInt8, _ three: UInt8, _ four: UInt8, _ five: UInt8, _ six: UInt8, _ seven: UInt8, _ eight: UInt8) {
-            _bytes = (one, two, three, four, five, six, seven, eight)
+        public subscript(position: Int) -> UInt8 {
+            switch position {
+            case 0: _bytes.0
+            case 1: _bytes.1
+            case 2: _bytes.2
+            case 3: _bytes.3
+            case 4: _bytes.4
+            case 5: _bytes.5
+            case 6: _bytes.6
+            case 7: _bytes.7
+            default: fatalError("Index out of range")
+            }
+        }
+
+        public func index(after i: Int) -> Int {
+            precondition(i < endIndex, "Can't advance beyond endIndex")
+            return i + 1
+        }
+
+        public var startIndex: Int { 0 }
+        public var endIndex: Int { 8 }
+
+        @inlinable
+        public func withContiguousStorageIfAvailable<R>(_ body: (UnsafeBufferPointer<UInt8>) throws -> R) rethrows -> R? {
+            try Swift.withUnsafeBytes(of: _bytes) { bytes in
+                try bytes.withMemoryRebound(to: UInt8.self, body)
+            }
+        }
+
+        @inlinable
+        public func withUnsafeBytes<Result>(_ body: (UnsafeRawBufferPointer) throws -> Result) rethrows -> Result {
+            try Swift.withUnsafeBytes(of: _bytes, body)
+        }
+
+        @inlinable
+        public mutating func withUnsafeMutableBytes<R>(_ body: (UnsafeMutableRawBufferPointer) throws -> R) rethrows -> R {
+            try Swift.withUnsafeMutableBytes(of: &_bytes) { bytes in
+                try body(bytes)
+            }
         }
 
         public static func == (lhs: Self, rhs: Self) -> Bool {
@@ -91,26 +130,16 @@ public struct SpanID: Sendable {
     }
 }
 
-extension SpanID: Equatable {}
-
-extension SpanID: Hashable {}
-
-extension SpanID: Identifiable {
-    public var id: Bytes { bytes }
-}
-
-extension SpanID: CustomStringConvertible {
-    /// A 16 character hex string representation of the span ID.
+extension SpanID.Bytes: CustomStringConvertible {
+    /// A 16 character hex string representation of the bytes.
     public var description: String {
-        String(decoding: bytes.hexBytes, as: UTF8.self)
+        String(decoding: hexBytes, as: UTF8.self)
     }
-}
 
-extension SpanID.Bytes {
-    /// A 16 character UTF-8 hex byte array representation of the span ID.
+    /// A 16 character UTF-8 hex byte array representation of the bytes.
     public var hexBytes: [UInt8] {
-        var asciiBytes: (UInt64, UInt64) = (0, 0)
-        return withUnsafeMutableBytes(of: &asciiBytes) { ptr in
+        var asciiBytes: (UInt64, UInt64, UInt64, UInt64) = (0, 0, 0, 0)
+        return Swift.withUnsafeMutableBytes(of: &asciiBytes) { ptr in
             ptr[0] = Hex.lookup[Int(_bytes.0 >> 4)]
             ptr[1] = Hex.lookup[Int(_bytes.0 & 0x0F)]
             ptr[2] = Hex.lookup[Int(_bytes.1 >> 4)]
@@ -129,5 +158,25 @@ extension SpanID.Bytes {
             ptr[15] = Hex.lookup[Int(_bytes.7 & 0x0F)]
             return Array(ptr)
         }
+    }
+}
+
+extension SpanID: Equatable {}
+
+extension SpanID: Hashable {}
+
+extension SpanID: Identifiable {
+    public var id: Self { self }
+}
+
+extension SpanID: CustomStringConvertible {
+    /// A 16 character hex string representation of the span ID.
+    public var description: String {
+        String(decoding: bytes.hexBytes, as: UTF8.self)
+    }
+
+    /// A 16 character UTF-8 hex byte array representation of the span ID.
+    public var hexBytes: [UInt8] {
+        bytes.hexBytes
     }
 }
