@@ -178,7 +178,7 @@ extension TraceID.Bytes: CustomStringConvertible {
     /// A 32-character UTF-8 hex byte array representation of the bytes.
     public var hexBytes: [UInt8] {
         var asciiBytes = [UInt8](repeating: 0, count: 32)
-        for i in 0 ..< 16 {
+        for i in startIndex ..< endIndex {
             let byte = self[i]
             asciiBytes[2 * i] = Hex.lookup[Int(byte >> 4)]
             asciiBytes[2 * i + 1] = Hex.lookup[Int(byte & 0x0F)]
