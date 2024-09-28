@@ -26,13 +26,8 @@ public struct SpanID: Sendable {
         self.bytes = bytes
     }
 
-    @inlinable
-    public func withUnsafeBytes<Result>(_ body: (UnsafeRawBufferPointer) throws -> Result) rethrows -> Result {
-        try bytes.withUnsafeBytes(body)
-    }
-
-    /// A null span ID.
-    public static var null: SpanID { SpanID(bytes: .null) }
+    /// An invalid span ID with all bytes set to 0.
+    public static var invalid: SpanID { SpanID(bytes: .null) }
 
     /// Create a random span ID using the given random number generator.
     ///
@@ -88,19 +83,25 @@ public struct SpanID: Sendable {
         public var endIndex: Int { 8 }
 
         @inlinable
-        public func withContiguousStorageIfAvailable<R>(_ body: (UnsafeBufferPointer<UInt8>) throws -> R) rethrows -> R? {
+        public func withContiguousStorageIfAvailable<Result>(_ body: (UnsafeBufferPointer<UInt8>) throws -> Result) rethrows -> Result? {
             try Swift.withUnsafeBytes(of: _bytes) { bytes in
                 try bytes.withMemoryRebound(to: UInt8.self, body)
             }
         }
 
+        /// Calls the given closure with a pointer to the span ID's underlying bytes.
+        ///
+        /// - Parameter body: A closure receiving an `UnsafeRawBufferPointer` to the span ID's underlying bytes.
         @inlinable
         public func withUnsafeBytes<Result>(_ body: (UnsafeRawBufferPointer) throws -> Result) rethrows -> Result {
             try Swift.withUnsafeBytes(of: _bytes, body)
         }
 
+        /// Calls the given closure with a mutable pointer to the span ID's underlying bytes.
+        ///
+        /// - Parameter body: A closure receiving an `UnsafeMutableRawBufferPointer` to the span ID's underlying bytes.
         @inlinable
-        public mutating func withUnsafeMutableBytes<R>(_ body: (UnsafeMutableRawBufferPointer) throws -> R) rethrows -> R {
+        public mutating func withUnsafeMutableBytes<Result>(_ body: (UnsafeMutableRawBufferPointer) throws -> Result) rethrows -> Result {
             try Swift.withUnsafeMutableBytes(of: &_bytes) { bytes in
                 try body(bytes)
             }
@@ -159,7 +160,7 @@ extension SpanID: Identifiable {
 extension SpanID: CustomStringConvertible {
     /// A 16 character hex string representation of the span ID.
     public var description: String {
-        String(decoding: bytes.hexBytes, as: UTF8.self)
+        "\(bytes)"
     }
 
     /// A 16 character UTF-8 hex byte array representation of the span ID.
