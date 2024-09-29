@@ -26,9 +26,6 @@ public struct SpanID: Sendable {
         self.bytes = bytes
     }
 
-    /// An invalid span ID with all bytes set to 0.
-    public static var invalid: SpanID { SpanID(bytes: .null) }
-
     /// Create a random span ID using the given random number generator.
     ///
     /// - Parameter randomNumberGenerator: The random number generator used to create random bytes for the span ID.

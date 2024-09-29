@@ -26,9 +26,6 @@ public struct TraceID: Sendable {
         self.bytes = bytes
     }
 
-    /// An invalid trace ID with all bytes set to 0.
-    public static var invalid: TraceID { TraceID(bytes: .null) }
-
     /// Create a random trace ID using the given random number generator.
     ///
     /// - Parameter randomNumberGenerator: The random number generator used to create random bytes for the trace ID.
