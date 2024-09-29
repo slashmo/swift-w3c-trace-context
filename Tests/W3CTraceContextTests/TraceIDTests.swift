@@ -59,4 +59,35 @@ final class TraceIDTests: XCTestCase {
 
         XCTAssertEqual(Set(randomTraceIDs).count, 100)
     }
+
+    // MARK: - Bytes
+
+    func test_traceIDBytes_withUnsafeBytes_invokesClosureWithPointerToBytes() {
+        let bytes = TraceID.Bytes((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16))
+
+        let byteArray = bytes.withUnsafeBytes { ptr in
+            Array(ptr)
+        }
+        XCTAssertEqual(byteArray, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])
+    }
+
+    func test_traceIDBytes_withUnsafeMutableBytes_allowsMutatingBytesViaClosure() {
+        var bytes = TraceID.Bytes((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16))
+
+        bytes.withUnsafeMutableBytes { ptr in
+            ptr.storeBytes(of: 42, as: UInt8.self)
+        }
+
+        XCTAssertEqual(Array(bytes), [42, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])
+    }
+
+    func test_withContiguousStorageIfAvailable_invokesClosureWithPointerToBytes() {
+        let bytes = TraceID.Bytes((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16))
+
+        let byteArray = bytes.withContiguousStorageIfAvailable { ptr in
+            Array(ptr)
+        }
+
+        XCTAssertEqual(byteArray, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])
+    }
 }

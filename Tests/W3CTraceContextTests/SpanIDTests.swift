@@ -58,4 +58,35 @@ final class SpanIDTests: XCTestCase {
 
         XCTAssertEqual(Set(randomSpanIDs).count, 100)
     }
+
+    // MARK: - Bytes
+
+    func test_spanIDBytes_withUnsafeBytes_invokesClosureWithPointerToBytes() {
+        let bytes = SpanID.Bytes((0, 10, 20, 50, 100, 150, 200, 255))
+
+        let byteArray = bytes.withUnsafeBytes { ptr in
+            Array(ptr)
+        }
+        XCTAssertEqual(byteArray, [0, 10, 20, 50, 100, 150, 200, 255])
+    }
+
+    func test_spanIDBytes_withUnsafeMutableBytes_allowsMutatingBytesViaClosure() {
+        var bytes = SpanID.Bytes((0, 10, 20, 50, 100, 150, 200, 255))
+
+        bytes.withUnsafeMutableBytes { ptr in
+            ptr.storeBytes(of: 42, as: UInt8.self)
+        }
+
+        XCTAssertEqual(Array(bytes), [42, 10, 20, 50, 100, 150, 200, 255])
+    }
+
+    func test_withContiguousStorageIfAvailable_invokesClosureWithPointerToBytes() {
+        let bytes = SpanID.Bytes((0, 10, 20, 50, 100, 150, 200, 255))
+
+        let byteArray = bytes.withContiguousStorageIfAvailable { ptr in
+            Array(ptr)
+        }
+
+        XCTAssertEqual(byteArray, [0, 10, 20, 50, 100, 150, 200, 255])
+    }
 }

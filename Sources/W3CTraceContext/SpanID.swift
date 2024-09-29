@@ -48,7 +48,26 @@ public struct SpanID: Sendable {
         var generator = SystemRandomNumberGenerator()
         return random(using: &generator)
     }
+}
 
+extension SpanID: Equatable {}
+
+extension SpanID: Hashable {}
+
+extension SpanID: Identifiable {
+    public var id: Self { self }
+}
+
+extension SpanID: CustomStringConvertible {
+    /// A 16 character hex string representation of the span ID.
+    public var description: String {
+        "\(bytes)"
+    }
+}
+
+// MARK: - Bytes
+
+extension SpanID {
     /// An 8-byte array.
     public struct Bytes: Collection, Equatable, Hashable, Sendable {
         public static var null: Self { SpanID.Bytes((0, 0, 0, 0, 0, 0, 0, 0)) }
@@ -83,7 +102,9 @@ public struct SpanID: Sendable {
         public var endIndex: Int { 8 }
 
         @inlinable
-        public func withContiguousStorageIfAvailable<Result>(_ body: (UnsafeBufferPointer<UInt8>) throws -> Result) rethrows -> Result? {
+        public func withContiguousStorageIfAvailable<Result>(
+            _ body: (UnsafeBufferPointer<UInt8>) throws -> Result
+        ) rethrows -> Result? {
             try Swift.withUnsafeBytes(of: _bytes) { bytes in
                 try bytes.withMemoryRebound(to: UInt8.self, body)
             }
@@ -101,7 +122,9 @@ public struct SpanID: Sendable {
         ///
         /// - Parameter body: A closure receiving an `UnsafeMutableRawBufferPointer` to the span ID's underlying bytes.
         @inlinable
-        public mutating func withUnsafeMutableBytes<Result>(_ body: (UnsafeMutableRawBufferPointer) throws -> Result) rethrows -> Result {
+        public mutating func withUnsafeMutableBytes<Result>(
+            _ body: (UnsafeMutableRawBufferPointer) throws -> Result
+        ) rethrows -> Result {
             try Swift.withUnsafeMutableBytes(of: &_bytes) { bytes in
                 try body(bytes)
             }
@@ -146,25 +169,5 @@ extension SpanID.Bytes: CustomStringConvertible {
             asciiBytes[2 * i + 1] = Hex.lookup[Int(byte & 0x0F)]
         }
         return asciiBytes
-    }
-}
-
-extension SpanID: Equatable {}
-
-extension SpanID: Hashable {}
-
-extension SpanID: Identifiable {
-    public var id: Self { self }
-}
-
-extension SpanID: CustomStringConvertible {
-    /// A 16 character hex string representation of the span ID.
-    public var description: String {
-        "\(bytes)"
-    }
-
-    /// A 16 character UTF-8 hex byte array representation of the span ID.
-    public var hexBytes: [UInt8] {
-        bytes.hexBytes
     }
 }

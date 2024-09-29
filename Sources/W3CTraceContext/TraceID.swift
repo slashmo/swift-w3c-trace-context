@@ -51,7 +51,26 @@ public struct TraceID: Sendable {
         var generator = SystemRandomNumberGenerator()
         return random(using: &generator)
     }
+}
 
+extension TraceID: Equatable {}
+
+extension TraceID: Hashable {}
+
+extension TraceID: Identifiable {
+    public var id: Self { self }
+}
+
+extension TraceID: CustomStringConvertible {
+    /// A 32-character hex string representation of the trace ID.
+    public var description: String {
+        "\(bytes)"
+    }
+}
+
+// MARK: - Bytes
+
+extension TraceID {
     /// A 16-byte array.
     public struct Bytes: Collection, Equatable, Hashable, Sendable {
         public static var null: Self { TraceID.Bytes((0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)) }
@@ -183,25 +202,5 @@ extension TraceID.Bytes: CustomStringConvertible {
             asciiBytes[2 * i + 1] = Hex.lookup[Int(byte & 0x0F)]
         }
         return asciiBytes
-    }
-}
-
-extension TraceID: Equatable {}
-
-extension TraceID: Hashable {}
-
-extension TraceID: Identifiable {
-    public var id: Self { self }
-}
-
-extension TraceID: CustomStringConvertible {
-    /// A 32-character hex string representation of the trace ID.
-    public var description: String {
-        "\(bytes)"
-    }
-
-    /// A 32-character UTF-8 hex byte array representation of the trace ID.
-    public var hexBytes: [UInt8] {
-        bytes.hexBytes
     }
 }
