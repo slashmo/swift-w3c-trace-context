@@ -22,8 +22,8 @@ final class TraceContextTests: XCTestCase {
         )
 
         XCTAssertEqual(traceContext, TraceContext(
-            traceID: TraceID(bytes: (10, 247, 101, 25, 22, 205, 67, 221, 132, 72, 235, 33, 28, 128, 49, 156)),
-            spanID: SpanID(bytes: (183, 173, 107, 113, 105, 32, 51, 49)),
+            traceID: TraceID(bytes: .init((10, 247, 101, 25, 22, 205, 67, 221, 132, 72, 235, 33, 28, 128, 49, 156))),
+            spanID: SpanID(bytes: .init((183, 173, 107, 113, 105, 32, 51, 49))),
             flags: .sampled,
             state: TraceState()
         ))
@@ -36,8 +36,8 @@ final class TraceContextTests: XCTestCase {
         )
 
         XCTAssertEqual(traceContext, TraceContext(
-            traceID: TraceID(bytes: (10, 247, 101, 25, 22, 205, 67, 221, 132, 72, 235, 33, 28, 128, 49, 156)),
-            spanID: SpanID(bytes: (183, 173, 107, 113, 105, 32, 51, 49)),
+            traceID: TraceID(bytes: .init((10, 247, 101, 25, 22, 205, 67, 221, 132, 72, 235, 33, 28, 128, 49, 156))),
+            spanID: SpanID(bytes: .init((183, 173, 107, 113, 105, 32, 51, 49))),
             flags: .sampled,
             state: TraceState([
                 (.simple("foo"), "bar"),

@@ -69,27 +69,11 @@ public struct TraceContext: Sendable {
 
         // trace ID
 
-        var traceIDBytes = TraceID.Bytes(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        var traceIDBytes = TraceID.Bytes.null
         withUnsafeMutableBytes(of: &traceIDBytes) { ptr in
             Hex.convert(traceParent[3 ..< 35], toBytes: ptr)
         }
-        if traceIDBytes.0 == 0,
-           traceIDBytes.1 == 0,
-           traceIDBytes.2 == 0,
-           traceIDBytes.3 == 0,
-           traceIDBytes.4 == 0,
-           traceIDBytes.5 == 0,
-           traceIDBytes.6 == 0,
-           traceIDBytes.7 == 0,
-           traceIDBytes.8 == 0,
-           traceIDBytes.9 == 0,
-           traceIDBytes.10 == 0,
-           traceIDBytes.11 == 0,
-           traceIDBytes.12 == 0,
-           traceIDBytes.13 == 0,
-           traceIDBytes.14 == 0,
-           traceIDBytes.15 == 0
-        {
+        if traceIDBytes == .null {
             throw TraceParentDecodingError(
                 .invalidTraceID(String(decoding: traceParent[3 ..< 35], as: UTF8.self))
             )
@@ -97,19 +81,11 @@ public struct TraceContext: Sendable {
 
         // span ID
 
-        var spanIDBytes = SpanID.Bytes(0, 0, 0, 0, 0, 0, 0, 0)
-        withUnsafeMutableBytes(of: &spanIDBytes) { ptr in
+        var spanIDBytes = SpanID.Bytes.null
+        spanIDBytes.withUnsafeMutableBytes { ptr in
             Hex.convert(traceParent[36 ..< 52], toBytes: ptr)
         }
-        if spanIDBytes.0 == 0,
-           spanIDBytes.1 == 0,
-           spanIDBytes.2 == 0,
-           spanIDBytes.3 == 0,
-           spanIDBytes.4 == 0,
-           spanIDBytes.5 == 0,
-           spanIDBytes.6 == 0,
-           spanIDBytes.7 == 0
-        {
+        if spanIDBytes == .null {
             throw TraceParentDecodingError(
                 .invalidSpanID(String(decoding: traceParent[36 ..< 52], as: UTF8.self))
             )
